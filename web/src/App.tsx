@@ -9,7 +9,6 @@ const authProvider = authClient();
 const dataProvider = restClient();
 
 function App() {
-  console.log()
   return (
     <Admin
       dataProvider={dataProvider}
