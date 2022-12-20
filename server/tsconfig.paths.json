@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@configs": ["src/common/configs"],
+      "@constants": ["src/common/constants"],
+      "@decorators": ["src/common/decorators"],
+      "@enums": ["src/common/enums"],
+      "@filters": ["src/common/filters"],
+      "@guards": ["src/common/guards"],
+      "@interceptors": ["src/common/interceptors"],
+      "@interfaces": ["src/common/interfaces"],
+      "@types": ["src/common/types"],
+      "@utils/*": ["src/common/utils/*"]
+    }
+  }
+}
