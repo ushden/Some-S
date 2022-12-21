@@ -6,7 +6,7 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
-const Visualizer = require('webpack-visualizer-plugin');
+const Visualizer = require('webpack-visualizer-plugin2');
 
 const plugins = [
   new webpack.ProgressPlugin({entries: true}),
@@ -28,7 +28,7 @@ module.exports = require('./webpack.base.babel')({
   // Add hot reloading in development
   entry: [
     'webpack-hot-middleware/client?reload=true',
-    path.join(process.cwd(), 'src/index.js'), // Start with js/index.tsx
+    path.join(process.cwd(), 'src/index.tsx'),
   ],
 
   devServer: {

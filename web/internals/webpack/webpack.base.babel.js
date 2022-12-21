@@ -217,8 +217,6 @@ module.exports = options => ({
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      MIXPATEL_PROJECT_TOKEN: process.env.MIXPATEL_PROJECT_TOKEN,
-      GOOGLE_TAG_MANAGER_ID: process.env.GOOGLE_TAG_MANAGER_ID || null,
     }),
     new webpack.ContextReplacementPlugin(/^\.\/locale$/, context => {
       if (!/\/moment\//.test(context.context)) {
