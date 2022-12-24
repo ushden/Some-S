@@ -7,7 +7,11 @@ import {SequelizeModule} from '@nestjs/sequelize';
 
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
+import { UsersModule } from './users/users.module';
 import * as process from "process";
+import {Service} from "@enums";
+import { RoleModule } from './role/role.module';
+import { RoleMappingModule } from './role-mapping/role-mapping.module';
 
 @Module({
   imports: [
@@ -39,10 +43,16 @@ import * as process from "process";
         ],
       }),
       inject: [ConfigService],
-    })
+    }),
+    UsersModule,
+    RoleModule,
+    RoleMappingModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [{
+    provide: Service.App,
+    useValue: AppService,
+  }],
 })
 export class AppModule {
 }

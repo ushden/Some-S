@@ -7,7 +7,7 @@ import LabelIcon from '@mui/icons-material/Label';
 
 export const CustomMenu = (props: MenuProps): JSX.Element => (
   <Menu {...props}>
-    <Menu.DashboardItem/>
+    <Menu.Item to="/" primaryText="Test 123" leftIcon={<BookIcon/>}/>
     <Menu.Item to="/posts" primaryText="Test 1" leftIcon={<BookIcon/>}/>
     <Menu.Item to="/comments" primaryText="Test 2" leftIcon={<ChatBubbleIcon/>}/>
     <Menu.Item to="/users" primaryText="Test 3" leftIcon={<PeopleIcon/>}/>

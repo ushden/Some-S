@@ -15,26 +15,28 @@ const winston = require("winston");
 const sequelize_1 = require("@nestjs/sequelize");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const users_module_1 = require("./users/users.module");
+const process = require("process");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            sequelize_1.SequelizeModule.forRoot({
-                dialect: 'postgres',
-                host: 'localhost',
-                port: 5432,
-                username: 'postgres',
-                password: 'root',
-                database: 'some-shit',
-                models: [],
-                autoLoadModels: true,
-            }),
             config_1.ConfigModule.forRoot({
                 envFilePath: common_utils_1.CommonUtilsService.isLocalEnvironment(process.env.NODE_ENV) ? ['.env.local', '.env'] : ['.env'],
                 isGlobal: true,
                 expandVariables: true,
                 cache: true,
+            }),
+            sequelize_1.SequelizeModule.forRoot({
+                dialect: 'postgres',
+                host: process.env.DB_HOST,
+                port: Number(process.env.DB_PORT),
+                username: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_DATABASE_NAME,
+                models: [],
+                autoLoadModels: true,
             }),
             nest_winston_1.WinstonModule.forRootAsync({
                 useFactory: () => ({
@@ -45,7 +47,8 @@ AppModule = __decorate([
                     ],
                 }),
                 inject: [config_1.ConfigService],
-            })
+            }),
+            users_module_1.UsersModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
