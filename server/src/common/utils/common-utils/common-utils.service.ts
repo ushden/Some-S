@@ -35,4 +35,18 @@ export class CommonUtilsService implements ICommonUtilsService {
   public static convertValueToString(value: unknown): string {
     return typeof value === 'object' ? stringify(value) : value.toString();
   }
+
+  public static parseJsonString(jsonString: unknown): any {
+    if (typeof jsonString !== 'string') {
+      return jsonString;
+    }
+
+    try {
+      JSON.parse(jsonString);
+    } catch (e) {
+      return jsonString;
+    }
+
+    return JSON.parse(jsonString);
+  }
 }

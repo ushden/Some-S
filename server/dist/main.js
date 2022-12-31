@@ -24,6 +24,12 @@ const bootstrap = async () => {
     const globalPrefix = `backend/${apiPrefix}`;
     const logger = app.get(nest_winston_1.WINSTON_MODULE_PROVIDER);
     const winston = app.get(nest_winston_1.WINSTON_MODULE_NEST_PROVIDER);
+    app.enableCors({
+        origin: true,
+        credentials: true,
+        exposedHeaders: [],
+        maxAge: 86400,
+    });
     app.set('trust proxy', ['linklocal', 'uniquelocal']);
     app.setGlobalPrefix(globalPrefix);
     app.useLogger(winston);

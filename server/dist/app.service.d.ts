@@ -1,3 +1,4 @@
-export declare class AppService {
-    getHello(): string;
+export interface IAppService {
+}
+export declare class AppService implements IAppService {
 }

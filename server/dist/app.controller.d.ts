@@ -1,6 +1,5 @@
-import { AppService } from './app.service';
+import { IAppService } from './app.service';
 export declare class AppController {
     private readonly appService;
-    constructor(appService: AppService);
-    getHello(): string;
+    constructor(appService: IAppService);
 }

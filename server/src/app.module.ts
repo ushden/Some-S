@@ -7,11 +7,13 @@ import {SequelizeModule} from '@nestjs/sequelize';
 
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
-import { UsersModule } from './users/users.module';
+import {UserModule} from './user/user.module';
 import * as process from "process";
 import {Service} from "@enums";
-import { RoleModule } from './role/role.module';
-import { RoleMappingModule } from './role-mapping/role-mapping.module';
+import {RoleModule} from './role/role.module';
+import {RoleMappingModule} from './role-mapping/role-mapping.module';
+import { EventModule } from './event/event.module';
+import { ServiceModule } from './service/service.module';
 
 @Module({
   imports: [
@@ -28,8 +30,9 @@ import { RoleMappingModule } from './role-mapping/role-mapping.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE_NAME,
-      models: [],
       autoLoadModels: true,
+      query: {nest: true},
+      timezone: 'utc',
     }),
     WinstonModule.forRootAsync({
       useFactory: () => ({
@@ -44,14 +47,16 @@ import { RoleMappingModule } from './role-mapping/role-mapping.module';
       }),
       inject: [ConfigService],
     }),
-    UsersModule,
+    UserModule,
     RoleModule,
-    RoleMappingModule
+    RoleMappingModule,
+    EventModule,
+    ServiceModule
   ],
   controllers: [AppController],
   providers: [{
     provide: Service.App,
-    useValue: AppService,
+    useClass: AppService,
   }],
 })
 export class AppModule {

@@ -6,7 +6,5 @@ interface IRoleMappingService extends IBaseService<RoleMapping>{}
 
 @Injectable()
 export class RoleMappingService extends BaseService<RoleMapping>(RoleMapping) implements IRoleMappingService {
-  constructor() {
-    super();
-  }
+
 }

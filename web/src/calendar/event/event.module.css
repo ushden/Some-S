@@ -1,0 +1,9 @@
+.input {
+    margin-bottom: 1rem;
+}
+
+.totalPrice {
+    font-weight: bold;
+    text-align: right;
+    margin-bottom: 0;
+}

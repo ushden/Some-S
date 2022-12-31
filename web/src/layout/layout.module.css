@@ -1,0 +1,7 @@
+.appBar {
+    background-color: var(--dark) !important;
+}
+
+.sidebar {
+    background-color: var(--dark);
+}

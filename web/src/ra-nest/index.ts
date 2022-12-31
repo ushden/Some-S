@@ -17,12 +17,24 @@ import {config} from './config';
 
 export * from './authClient';
 
+export interface IQueryParams {
+  id?: number
+  ids?: Array<number>
+  filter: object
+  attributes?: Array<string>
+  limit?: number
+  skip?: number
+  pagination?: {page: number, perPage: number}
+  sort?: {field: string, order: 'ASC' | 'DESC'}
+  include?: string | object | Array<string>
+  data: unknown
+}
+
 export default (apiUrl = config.api(), httpClient = fetchJson) => {
-  const convertRESTRequestToHTTP = (type: string, resource: string, params: any) => {
+  const convertRESTRequestToHTTP = (type: string, resource: string, params: IQueryParams) => {
     let url = '';
     const options = {
-      method: '',
-      body: '',
+      method: 'GET',
     };
 
     switch (type) {
@@ -30,8 +42,8 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
         const query: any = {
           where: {...params.filter},
           attributes: params.attributes && [...params.attributes],
-          limit: params.limit,
-          skip: params.skip,
+          limit: params.limit || 100,
+          skip: params.skip || 0,
         };
 
 
@@ -61,6 +73,7 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
         url = `${apiUrl}/${resource}?${queryParameters({
           filter: JSON.stringify(query),
         })}`;
+
         break;
       }
       case GET_ONE:
@@ -73,17 +86,16 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
           include = {...params.include};
         }
         url = `${apiUrl}/${resource}/${params.id}?${queryParameters({
-          filter: JSON.stringify({include: include, fields: params.fields}),
+          filter: JSON.stringify({include: include, attributes: params.attributes}),
         })}`;
         break;
       case GET_MANY: {
-        const idsField = params.idsField || 'id';
         const query: any = {
-          fields: params.fields && [...params.fields],
+          attributes: params.attributes && [...params.attributes],
         };
 
-        if (params.ids.length > 0) {
-          query.where = {[idsField]: {inq: params.ids}};
+        if (Array.isArray(params.ids) && params.ids.length > 0) {
+          query.where = {id: {inq: params.ids}};
         } else {
           query.where = {};
         }
@@ -100,14 +112,16 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
         break;
       }
       case GET_MANY_REFERENCE: {
-        const {page, perPage} = params.pagination;
+        // @ts-ignore
+        const {page, perPage = 0} = params.pagination;
+        // @ts-ignore
         const {field, order} = params.sort;
         const query: any = {
           where: {
             ...params.filter,
-            [params.target]: params.id,
+            id: params.id,
           },
-          fields: params.fields && [...params.fields],
+          attributes: params.attributes && [...params.attributes],
         };
 
         if (field) query.order = [`${field} ${order}`];
@@ -125,27 +139,28 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
       case UPDATE:
         url = `${apiUrl}/${resource}/${params.id}`;
         options.method = 'PATCH';
+        // @ts-ignore
         options.body = JSON.stringify(params.data);
         break;
       case CREATE:
         url = `${apiUrl}/${resource}`;
         options.method = 'POST';
+        // @ts-ignore
         options.body = JSON.stringify(params.data);
         break;
       case FETCH_STREAM:
       case FETCH:
         url = `${apiUrl}/${resource}`;
         options.method = 'POST';
+        // @ts-ignore
         options.body = JSON.stringify(params);
         break;
       case FETCH_GET:
         const urlObj = new URL(`${apiUrl}/${resource}`);
 
         Object.keys(params).forEach((key) => {
-          urlObj.searchParams.append(
-            key,
-            typeof params[key] === 'object' ? JSON.stringify(params[key]) : params[key]
-          );
+          // @ts-ignore
+          urlObj.searchParams.append(key, typeof params[key] === 'object' ? JSON.stringify(params[key]) : params[key]);
         });
 
         url = urlObj.toString();
@@ -194,10 +209,10 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
     }
   };
 
-  return (type: string, resource: string, params: any) => { // todo params interface
-    if (type === UPDATE_MANY) {
+  return (type: string, resource: string, params: IQueryParams): Promise<unknown> => {
+    if (type === UPDATE_MANY && params.ids) {
       return Promise.all(
-        params.ids.map((id: string | number) =>
+        params.ids.map((id: number) =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
             method: 'PATCH',
             body: JSON.stringify(params.data),
@@ -208,9 +223,9 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
       }));
     }
 
-    if (type === DELETE_MANY) {
+    if (type === DELETE_MANY && params.ids) {
       return Promise.all(
-        params.ids.map((id: string | number) =>
+        params.ids.map((id: number) =>
           httpClient(`${apiUrl}/${resource}/${id}`, {
             method: 'DELETE',
           })

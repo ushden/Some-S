@@ -15,8 +15,13 @@ const winston = require("winston");
 const sequelize_1 = require("@nestjs/sequelize");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const users_module_1 = require("./users/users.module");
+const user_module_1 = require("./user/user.module");
 const process = require("process");
+const _enums_1 = require("./common/enums");
+const role_module_1 = require("./role/role.module");
+const role_mapping_module_1 = require("./role-mapping/role-mapping.module");
+const event_module_1 = require("./event/event.module");
+const service_module_1 = require("./service/service.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -35,8 +40,9 @@ AppModule = __decorate([
                 username: process.env.DB_USER,
                 password: process.env.DB_PASSWORD,
                 database: process.env.DB_DATABASE_NAME,
-                models: [],
                 autoLoadModels: true,
+                query: { nest: true },
+                timezone: 'utc',
             }),
             nest_winston_1.WinstonModule.forRootAsync({
                 useFactory: () => ({
@@ -48,10 +54,17 @@ AppModule = __decorate([
                 }),
                 inject: [config_1.ConfigService],
             }),
-            users_module_1.UsersModule
+            user_module_1.UserModule,
+            role_module_1.RoleModule,
+            role_mapping_module_1.RoleMappingModule,
+            event_module_1.EventModule,
+            service_module_1.ServiceModule
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [{
+                provide: _enums_1.Service.App,
+                useClass: app_service_1.AppService,
+            }],
     })
 ], AppModule);
 exports.AppModule = AppModule;

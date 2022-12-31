@@ -29,6 +29,12 @@ const bootstrap = async (): Promise<void> => {
   const logger = app.get<Logger>(WINSTON_MODULE_PROVIDER);
   const winston = app.get<LoggerService>(WINSTON_MODULE_NEST_PROVIDER);
 
+  app.enableCors({
+    origin: true,
+    credentials: true,
+    exposedHeaders: [],
+    maxAge: 86400,
+  });
   app.set('trust proxy', ['linklocal', 'uniquelocal']);
   app.setGlobalPrefix(globalPrefix);
   app.useLogger(winston);

@@ -3,7 +3,7 @@ import storage from './storage';
 import {accessTokenLocalStorageKey, redirectAfterLoginLocalStorageKey} from '../constants';
 import {saveUnauthorizedLogoutReasonIfNeeded} from './utils';
 
-interface FetchOptions {
+export interface FetchOptions {
   headers?: Headers
   method: string
   body?: BodyInit

@@ -4,8 +4,8 @@ enum Service {
   Users = 'Users',
   Roles = 'Roles',
   RolesMapping = 'RolesMapping',
+  Events = 'Events',
+  Services = 'Services',
 }
 
-export {
-  Service,
-};
+export { Service };

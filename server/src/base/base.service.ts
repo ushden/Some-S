@@ -1,6 +1,6 @@
-import {BadGatewayException, mixin, Type} from '@nestjs/common';
-import {InjectModel} from "@nestjs/sequelize";
-import {Model, ModelCtor} from "sequelize-typescript";
+import {mixin, Type} from '@nestjs/common';
+import {InjectModel} from '@nestjs/sequelize';
+import {Model, ModelCtor} from 'sequelize-typescript';
 import {
   Attributes,
   BulkCreateOptions,
@@ -10,11 +10,11 @@ import {
   DestroyOptions,
   FindAndCountOptions,
   FindOptions,
-  FindOrCreateOptions,
   Identifier,
   UpdateOptions,
-  UpsertOptions
-} from "sequelize";
+  UpsertOptions,
+  FindOrCreateOptions,
+} from 'sequelize';
 
 export interface IBaseService<M extends Model<M>> {
   readonly baseRepository: ModelCtor<M>;

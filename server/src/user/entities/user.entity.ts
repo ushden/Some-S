@@ -3,7 +3,6 @@ import {
   DataType,
   Model,
   Table as SeqTable,
-  HasOne,
   CreatedAt,
   UpdatedAt,
   BelongsToMany
@@ -20,6 +19,9 @@ export class User extends Model<User> {
 
   @Column({unique: true, type: DataType.STRING, allowNull: true})
   email: string
+
+  @Column({unique: false, type: DataType.STRING, allowNull: false})
+  name: string
 
   @Column({unique: true, type: DataType.STRING, allowNull: false})
   phone: string

@@ -10,8 +10,8 @@ import {saveSessionLogoutReasonIfNeeded} from './utils';
 export const authClient = () => {
   let accessTokenData = {};
   const apiUrl = config.api();
-  const loginApiUrl = `${apiUrl}/'maybe-user'/login` // todo change that
-  const logoutApiUrl = `${apiUrl}/'maybe-user'/logout`
+  const loginApiUrl = `${apiUrl}/users/login`
+  const logoutApiUrl = `${apiUrl}/users/logout`
 
   return async (type: string, params: any) => {
     if (type === AUTH_LOGIN) {

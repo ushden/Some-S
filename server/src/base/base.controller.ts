@@ -1,17 +1,17 @@
 import {
-  Get,
-  Post,
-  Delete,
-  Put,
+  BadRequestException,
   Body,
-  Param,
-  Type,
+  Delete,
+  Get,
+  Head,
   Inject,
   mixin,
   NotFoundException,
-  BadRequestException,
+  Param,
   Patch,
-  Head
+  Post,
+  Put,
+  Type
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -42,8 +42,9 @@ import {
   UpdateOptions
 } from "sequelize";
 import {ICurrentUser} from "@interfaces";
-import {Service} from "@enums";
+import {RequestQuerySource, RequestQuerySubSource, Service} from "@enums";
 import {CommonUtilsService} from "@utils/common-utils";
+import {AllowedQuery, QueryProcessing} from "@decorators";
 
 export interface IBaseController<M extends Model<M>> {
   readonly baseService: IBaseService<M>;
@@ -152,11 +153,12 @@ export const BaseController = <T extends Model<T>>(model: ModelCtor<T>, provider
       isArray: true,
       headers: {'X-Total-Count': {description: `Total count of found ${model.name} instances`}},
     })
+    @QueryProcessing(RequestQuerySource.Query, RequestQuerySubSource.Filter)
     @Get()
     public async findAndCountAll(
-      options?: Omit<FindAndCountOptions<Attributes<M>>, 'group'>,
+      @AllowedQuery({source: RequestQuerySource.Query}) options?: Omit<FindAndCountOptions<Attributes<M>>, 'group'>,
     ): Promise<{ rows: M[]; count: number }> {
-      return this.baseService.findAndCountAll({...options, distinct: true});
+      return this.baseService.findAndCountAll(options || {});
     }
 
     // Base

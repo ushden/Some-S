@@ -8,7 +8,7 @@ import {
   BelongsToMany
 } from "sequelize-typescript";
 import {Table} from "@enums";
-import {User} from "../../users/entities/user.entity";
+import {User} from "../../user/entities/user.entity";
 import {RoleMapping} from "../../role-mapping/entities/role-mapping.entity";
 
 @SeqTable({tableName: Table.role})
