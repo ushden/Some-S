@@ -3,31 +3,44 @@ import {EventInput} from '@fullcalendar/core';
 import {Dayjs} from 'dayjs';
 import {DateTime} from 'luxon';
 import {get} from 'lodash';
+import {eventStatusWaiting} from '../constants';
 
 const isDateBetweenTwoDates = (start: number | string, end: number | string, date: number | string) =>
   +start <= +date && +end >= +date;
 
+const getEventColors = (status: string): string | undefined => {
+  switch (status) {
+    case eventStatusWaiting:
+      return '#f9e095';
+  }
+};
+
 const parseEvents = (events: IEvent[]): EventInput[] => {
   return events.map((event, i) => {
-    const {id, start, end, status, masterId, customerId} = event;
+    const {id, start, end, status, masterId, customerId, master, customer, services, price, created} = event;
 
     return {
       id,
-      title: `Test title - ${i + 1}`,
+      title: customer?.name,
       allDay: false,
       editable: true,
       interactive: true,
       start: Number(start),
       end: Number(end),
-      backgroundColor: 'lightblue',
-      borderColor: 'blue',
-      className: 'event-custom-class',
-      textColor: '#fff',
-      color: 'black',
+      backgroundColor: getEventColors(status),
+      borderColor: getEventColors(status),
+      className: 'custom-event',
+      textColor: 'rgba(0, 0, 0, 0.6)',
       extendedProps: {
+        masterName: master?.name,
+        customerName: customer?.name,
+        phone: customer?.phone,
+        services,
+        price,
         status,
         masterId,
         customerId,
+        created,
       },
     };
   });
@@ -49,25 +62,31 @@ const checkIfTimeIsAvailable = (filteredEvents: EventInput[], currentStartDate: 
   const startInMillis = currentStartDate.toMillis();
   const endInMillis = currentEndDate.toMillis();
 
-  // current slot: s - 11:00, plus services - 11:45
-  // event data: s - 11:30, e - 12:15
   return !filteredEvents.some(({start, end}) => {
-    if (!start || !end) {
+    if (!Number(start) || !Number(end)) {
       return;
     }
 
     return (
       isDateBetweenTwoDates(start as number, end as number, startInMillis) ||
-      isDateBetweenTwoDates(start as number, end as number, endInMillis)
+      isDateBetweenTwoDates(start as number, end as number, endInMillis) ||
+      isDateBetweenTwoDates(startInMillis, endInMillis, start as number) ||
+      isDateBetweenTwoDates(startInMillis, endInMillis, end as number)
     );
   });
 };
 
 const getTimeSlots = (date: Dayjs, events: EventInput[], masterId: string, totalLeadTime: number) => {
-  const filteredEvents = events.filter(e => +get(e, 'extendedProps.masterId') === +masterId);
+  const startDate = date.startOf('day').valueOf();
+  const endDate = date.endOf('day').valueOf();
+  const filteredEvents = events.filter(
+    e =>
+      +get(e, 'extendedProps.masterId') === +masterId &&
+      isDateBetweenTwoDates(startDate, endDate, e.extendedProps?.created),
+  );
   const timeSlots = [];
-  let startDay = DateTime.now().set({hour: 8, minute: 0, second: 0, millisecond: 0}).toMillis();
-  let endDay = DateTime.now().set({hour: 20, minute: 0, second: 0, millisecond: 0}).toMillis();
+  let startDay = DateTime.fromMillis(date.valueOf()).set({hour: 8, minute: 0, second: 0, millisecond: 0}).toMillis();
+  let endDay = DateTime.fromMillis(date.valueOf()).set({hour: 20, minute: 0, second: 0, millisecond: 0}).toMillis();
 
   do {
     const currentStartDate = DateTime.fromMillis(startDay);
@@ -96,16 +115,16 @@ const validateEvent = (event: ICreateEvent): string | undefined => {
     return 'Date req';
   }
 
-  if (!time) {
-    return 'Time req';
-  }
-
   if (!master) {
     return 'MAster req';
   }
 
   if (!services.length) {
     return 'Service req';
+  }
+
+  if (!time) {
+    return 'Time req';
   }
 };
 

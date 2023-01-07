@@ -14,7 +14,7 @@ export interface IEvent {
   customerId: number;
   status: string;
   master?: {name: string, id: number};
-  customer?: {name: string, id: number};
+  customer?: {name: string, id: number, phone: string};
 }
 
 export interface IService {

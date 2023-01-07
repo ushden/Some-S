@@ -251,6 +251,7 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
       await createEvent((dataProvider as unknown) as LegacyDataProvider, data);
   
       setNeedUpdateEvents(true);
+      onClose();
     } catch (e) {
       console.error(e);
     }
@@ -261,6 +262,10 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
 
     if (error) {
       setError('');
+    }
+    
+    if (time) {
+      setTime(null);
     }
   }, []);
 
@@ -273,6 +278,10 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
     if (error) {
       setError('');
     }
+  
+    if (time) {
+      setTime(null);
+    }
   }, []);
 
   const handleDateChange = useCallback((v: any) => {
@@ -280,6 +289,10 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
 
     if (error) {
       setError('');
+    }
+  
+    if (time) {
+      setTime(null);
     }
   }, []);
 
@@ -354,7 +367,7 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
         })}
         {renderAvailableTimes(timeSlots, time, handleTimeChange)}
         <p className={classes.totalPrice}>
-          Загальна вартість: {totalPrice}. Потрібно часу: {totalLeadTime}
+          Загальна вартість: {totalPrice} грн. Потрібно часу: {totalLeadTime} хв.
         </p>
         {error && <p>{error}</p>}
       </DialogContent>

@@ -17,6 +17,7 @@ code {
   --green: #94C14E;
   --blue: #4c92df;
   --gray: #e7e7e7;
+  --event-status-waiting: #f9e095;
 }
 
 /*Переопределяем стили для календаря*/
@@ -71,6 +72,10 @@ code {
   height: 3rem !important;
 }
 /*Конец*/
+
+.custom-event {
+  overflow: hidden;
+}
 
 .slot-label {
   color: #ccc;

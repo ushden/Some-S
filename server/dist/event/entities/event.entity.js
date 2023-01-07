@@ -16,7 +16,7 @@ const _enums_1 = require("../../common/enums");
 const user_entity_1 = require("../../user/entities/user.entity");
 let Event = class Event extends sequelize_typescript_1.Model {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, status: { required: true, type: () => String }, start: { required: true, type: () => Number }, end: { required: true, type: () => Number }, created: { required: true, type: () => Number }, customerId: { required: true, type: () => Number }, masterId: { required: true, type: () => Number }, meta: { required: true, type: () => Object }, customer: { required: true, type: () => require("../../user/entities/user.entity").User }, master: { required: true, type: () => require("../../user/entities/user.entity").User } };
+        return { id: { required: true, type: () => Number }, status: { required: true, type: () => String }, start: { required: true, type: () => Number }, end: { required: true, type: () => Number }, created: { required: true, type: () => Number }, price: { required: true, type: () => Number }, services: { required: true, type: () => [Object] }, customerId: { required: true, type: () => Number }, masterId: { required: true, type: () => Number }, meta: { required: true, type: () => Object }, customer: { required: true, type: () => require("../../user/entities/user.entity").User }, master: { required: true, type: () => require("../../user/entities/user.entity").User } };
     }
 };
 __decorate([
@@ -39,6 +39,14 @@ __decorate([
     (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.BIGINT, allowNull: false }),
     __metadata("design:type", Number)
 ], Event.prototype, "created", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.BIGINT, allowNull: false }),
+    __metadata("design:type", Number)
+], Event.prototype, "price", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.JSON, allowNull: false, defaultValue: [] }),
+    __metadata("design:type", Array)
+], Event.prototype, "services", void 0);
 __decorate([
     (0, sequelize_typescript_1.ForeignKey)(() => user_entity_1.User),
     (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.INTEGER, allowNull: false }),

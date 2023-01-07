@@ -20,20 +20,23 @@ import {WithPermissionsChildrenParams} from 'ra-core/src/auth/WithPermissions';
 import {DateTime} from 'luxon';
 import {GET_LIST} from '../ra-nest/types';
 import {eventsResource} from '../constants';
-import {IEvent} from '../interfaces';
+import {IEvent, IService} from '../interfaces';
 import {get} from 'lodash';
 import {parseEvents} from '../utils';
 
-// const renderEventContent = (eventContent: EventContentArg) => {
-//   // console.log(eventContent, 'eventContent')
-//   return (
-//     <>
-//       <p>test</p>
-//       <b>{eventContent.timeText}</b>
-//       <i>{eventContent.event.title}</i>
-//     </>
-//   )
-// }
+const renderEventContent = (eventContent: EventContentArg) => {
+  const services = eventContent.event?.extendedProps?.services?.map((s: IService) => s.name).join(', ');
+  
+  return (
+    <div style={{padding: '2px', overflow: 'hidden'}}>
+      <i>{eventContent.timeText}</i>
+      {' - '}
+      <b>{eventContent.event.title}</b>
+      <p style={{marginTop: '2px', marginBottom: '2px'}}>{eventContent.event?.extendedProps?.phone}</p>
+      <p style={{marginTop: '2px', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden'}}>{services}</p>
+    </div>
+  );
+};
 
 export const Calendar = (props: WithPermissionsChildrenParams) => {
   const translate = useTranslate();
@@ -122,7 +125,7 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
           console.log(isLoading, 'isLoading');
         }}
         editable={true}
-        // allDaySlot={true}
+        allDaySlot={false}
         displayEventTime={true}
         displayEventEnd={true}
         eventDisplay='test'
@@ -168,7 +171,7 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
           prev: translate('calendar.prev'),
           today: translate('calendar.today'),
         }}
-        // eventContent={renderEventContent}
+        eventContent={renderEventContent}
         eventClick={handleEventClick}
         eventDidMount={mountArg => {}}
         eventsSet={events => {
