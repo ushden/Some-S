@@ -8,3 +8,5 @@ export const usersResource = "users";
 export const servicesResource = "services";
 
 export const getMastersEndpoint = "get-masters";
+
+export const eventStatusWaiting = 'waiting';

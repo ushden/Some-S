@@ -11,6 +11,4 @@ export class EventController extends BaseController<Event>(Event, Service.Events
   constructor(@Inject(Service.Events) private readonly eventService: EventService) {
     super()
   }
-
-
 }

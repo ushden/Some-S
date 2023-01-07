@@ -1,6 +1,6 @@
 import HttpError from './HttpError';
 import storage from './storage';
-import {accessTokenLocalStorageKey, redirectAfterLoginLocalStorageKey} from '../constants';
+import {accessTokenLocalStorageKey} from '../constants';
 import {saveUnauthorizedLogoutReasonIfNeeded} from './utils';
 
 export interface FetchOptions {

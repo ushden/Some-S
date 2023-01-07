@@ -1,13 +1,16 @@
-import React, {Fragment} from 'react';
-import {WithPermissionsChildrenParams} from "ra-core/src/auth/WithPermissions";
-import {Calendar} from "../calendar";
+import React from "react";
+import { WithPermissionsChildrenParams } from "ra-core/src/auth/WithPermissions";
+import { Calendar } from "../calendar";
+import Box from "@mui/material/Box";
+
+import classes from "./dashboard.module.css";
 
 export const Dashboard = (props: WithPermissionsChildrenParams) => {
-  const {permissions} = props;
+  const { permissions } = props;
 
   return (
-    <Fragment>
-      <Calendar permissions={permissions}/>
-    </Fragment>
+    <Box className={classes.container}>
+      <Calendar permissions={permissions} />
+    </Box>
   );
 };

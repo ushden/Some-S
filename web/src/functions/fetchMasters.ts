@@ -6,7 +6,6 @@ import {LegacyDataProvider} from "react-admin";
 export const fetchMaters = async (dataProvider: LegacyDataProvider) => {
   try {
     const res = await dataProvider(GET_LIST, `${usersResource}/${getMastersEndpoint}`, {});
-    console.log(res, 'response masters')
 
     return get(res, 'data', [])
   } catch (e) {

@@ -7,3 +7,21 @@
     text-align: right;
     margin-bottom: 0;
 }
+
+.times {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.time:not(:last-of-type) {
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+}
+
+.time:not(:first-of-type) {
+    margin-left: 5px !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-top-left-radius: 4px !important;
+    border-bottom-left-radius: 4px !important;
+}

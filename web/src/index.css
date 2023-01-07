@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -15,19 +15,67 @@ code {
 :root {
   --dark: #17293B;
   --green: #94C14E;
+  --blue: #4c92df;
+  --gray: #e7e7e7;
 }
 
-.some-notes {
-  color: cornflowerblue;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
+/*Переопределяем стили для календаря*/
 .fc-newEvent-button {
-  background-color: #94C14E !important;
-  border: 1px solid #94C14E !important;
+  background-color: var(--green) !important;
+  border: 1px solid var(--green) !important;
+}
+
+.btn-check:checked + .btn, :not(.btn-check) + .btn:active, .btn:first-child:active, .btn.active {
+  background-color: white !important;
+  color: var(--dark) !important;
+  border: 1px solid var(--gray) !important;
+}
+
+.fc-next-button {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gray) !important;
+  color: var(--dark) !important;
+}
+
+.fc-prev-button {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gray) !important;
+  color: var(--dark) !important;
+}
+
+.fc-dayGridMonth-button {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gray) !important;
+  color: var(--dark) !important;
+}
+
+.fc-timeGridWeek-button {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gray) !important;
+  color: var(--dark) !important;
+}
+
+.fc-timeGridDay-button {
+  background-color: var(--gray) !important;
+  border: 1px solid var(--gray) !important;
+  color: var(--dark) !important;
+}
+
+.fc-today-button {
+  background-color: var(--blue) !important;
+  border: 1px solid var(--blue) !important;
+  color: var(--bs-white) !important;
 }
 
 .row-height {
   height: 3rem !important;
+}
+/*Конец*/
+
+.slot-label {
+  color: #ccc;
+}
+
+.slot-label:nth-child(even) {
+  font-size: 0.8rem;
 }

@@ -2,6 +2,13 @@ import {BelongsTo, Column, DataType, ForeignKey, Model, Table as SeqTable} from 
 import {Table} from "@enums";
 import {User} from "../../user/entities/user.entity";
 
+interface IService {
+  id: number;
+  name: string;
+  price: number;
+  leadTime: number;
+}
+
 @SeqTable({tableName: Table.event})
 export class Event extends Model<Event> {
   @Column({type: DataType.BIGINT, primaryKey: true, unique: true, allowNull: false, autoIncrement: true})
@@ -18,6 +25,12 @@ export class Event extends Model<Event> {
 
   @Column({type: DataType.BIGINT, allowNull: false})
   created: number
+  
+  @Column({type: DataType.BIGINT, allowNull: false})
+  price: number
+  
+  @Column({type: DataType.JSON, allowNull: false, defaultValue: []})
+  services: Array<IService>
 
   @ForeignKey(() => User)
   @Column({type: DataType.INTEGER, allowNull: false})
