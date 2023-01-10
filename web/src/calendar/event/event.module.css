@@ -25,3 +25,12 @@
     border-top-left-radius: 4px !important;
     border-bottom-left-radius: 4px !important;
 }
+
+.serviceInput {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.serviceMenuItem {
+    white-space: pre-wrap !important;
+}

@@ -8,9 +8,10 @@ import 'dayjs/locale/uk';
 import restClient, {authClient} from './ra-nest';
 import {Layout} from './layout';
 import {Dashboard} from './dashboard';
+import {theme} from "./layout/theme";
 import {i18nProvider} from './i18n';
 import dataProviderDecorator from './dataProviderDecorator';
-import {eventsResource} from './constants';
+import events from './calendar/event/index';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -30,13 +31,14 @@ function App() {
     >
       <Admin
         dashboard={Dashboard}
+        theme={theme}
         dataProvider={decoratedDataProvider as LegacyDataProvider}
         authProvider={authProvider}
         layout={Layout}
         history={history}
         i18nProvider={i18nProvider}
       >
-        <Resource name={eventsResource} />
+        <Resource {...events}/>
       </Admin>
     </LocalizationProvider>
   );

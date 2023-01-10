@@ -7,7 +7,6 @@ import {IEvent} from "../interfaces";
 export const createEvent = async (dataProvider: LegacyDataProvider, data: IEvent) => {
 	try {
 		const res = await dataProvider(CREATE, eventsResource, {data});
-		console.log(res, 'response create event')
 		
 		return get(res, 'data', [])
 	} catch (e) {

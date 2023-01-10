@@ -14,6 +14,7 @@ import {
   FETCH_STREAM,
 } from "./types";
 import {config} from './config';
+import {get} from "lodash";
 
 export * from './authClient';
 
@@ -190,7 +191,8 @@ export default (apiUrl = config.api(), httpClient = fetchJson) => {
       case GET_LIST:
       case GET_MANY_REFERENCE:
         return {
-          data: json,
+          data: get(json, 'rows', []),
+          total: get(json, 'count', 0),
         };
       case CREATE:
         return {data: {...params.data, id: json.id}};

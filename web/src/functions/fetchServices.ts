@@ -7,7 +7,7 @@ export const fetchServices = async (dataProvider: LegacyDataProvider) => {
   try {
     const response = await dataProvider(GET_LIST, servicesResource, {});
 
-    return get(response, "data.rows", []);
+    return get(response, "data", []);
   } catch (e) {
     console.error(e);
   }

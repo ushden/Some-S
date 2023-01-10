@@ -23,6 +23,8 @@ import {eventsResource} from '../constants';
 import {IEvent, IService} from '../interfaces';
 import {get} from 'lodash';
 import {parseEvents} from '../utils';
+import useMediaQuery from "@mui/material/useMediaQuery";
+import {useTheme} from "@mui/material/styles";
 
 const renderEventContent = (eventContent: EventContentArg) => {
   const services = eventContent.event?.extendedProps?.services?.map((s: IService) => s.name).join(', ');
@@ -33,7 +35,7 @@ const renderEventContent = (eventContent: EventContentArg) => {
       {' - '}
       <b>{eventContent.event.title}</b>
       <p style={{marginTop: '2px', marginBottom: '2px'}}>{eventContent.event?.extendedProps?.phone}</p>
-      <p style={{marginTop: '2px', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden'}}>{services}</p>
+      <p style={{marginTop: '2px', marginBottom: '2px', whiteSpace: 'pre-wrap', overflow: 'hidden'}}>{services}</p>
     </div>
   );
 };
@@ -43,8 +45,12 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
   const dataProvider = useDataProvider();
   const ref = useRef<FullCalendar>(null);
   const api = useMemo(() => ref.current?.getApi(), [ref.current]);
-  console.log(api, 'api');
-
+  
+  console.log(api, 'API');
+  
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
   const [needUpdateEvents, setNeedUpdateEvents] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [events, setEvents] = useState<EventInput[]>([]);
@@ -71,12 +77,11 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
           created: {between: [start, end]},
         },
       }).then((res: Response) => {
-        const events: IEvent[] = get(res, 'data.rows', []);
+        const events: IEvent[] = get(res, 'data', []);
         const parsedEvents = parseEvents(events);
 
         setEvents(parsedEvents);
         successCallback(parsedEvents);
-        console.log(events);
       });
     } catch (e) {
       failureCallback(e as Error);
@@ -110,15 +115,22 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
   return (
     <Fragment>
       <FullCalendar
+        dayCellClassNames="testClassName"
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, luxon2Plugin, bootstrap5Plugin]}
+        height="100vh"
+        scrollTime={1}
         ref={ref}
         nowIndicator={true}
         firstDay={1}
         events={fetchEvents}
+        // headerToolbar={{
+        //   left: 'prev,next today',
+        //   center: 'title',
+        //   right: 'newEvent dayGridMonth,timeGridWeek,timeGridDay',
+        // }}
         headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'newEvent dayGridMonth,timeGridWeek,timeGridDay',
+          left: 'prev,next',
+          right: 'newEvent timeGridWeek,timeGridDay',
         }}
         initialView='timeGridDay'
         loading={isLoading => {
@@ -147,6 +159,7 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         slotMaxTime='22:00:00'
         slotLabelInterval='00:30'
         slotLabelClassNames={['slot-label']}
+        slotEventOverlap={false}
         slotLabelFormat={{
           hour12: false,
           hour: 'numeric',

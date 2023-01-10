@@ -28,7 +28,9 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
             where: { name: _enums_1.HighestRole.Master },
             include: ['users'],
         });
-        return (0, lodash_1.get)(roles[0], 'users', []);
+        return {
+            rows: (0, lodash_1.get)(roles[0], 'users', []),
+        };
     }
 };
 UserService = __decorate([

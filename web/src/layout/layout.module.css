@@ -5,3 +5,7 @@
 .sidebar {
     background-color: var(--dark);
 }
+
+.menu {
+    color: #cccccc;
+}

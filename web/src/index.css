@@ -69,7 +69,11 @@ code {
 }
 
 .row-height {
-  height: 3rem !important;
+  height: 4rem !important;
+}
+
+.fc-scroller {
+  overflow-x: scroll !important;
 }
 /*Конец*/
 

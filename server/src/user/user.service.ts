@@ -6,7 +6,7 @@ import {IRoleService} from "../role/role.service";
 import {get} from "lodash";
 
 export interface IUserService extends IBaseService<User> {
-  getMasters: () => Promise<User[]>
+  getMasters: () => Promise<{rows: User[]}>
 }
 
 @Injectable()
@@ -21,6 +21,8 @@ export class UserService extends BaseService<User>(User) implements IUserService
       include: ['users'],
     })
 
-    return get(roles[0], 'users', []);
+    return {
+      rows: get(roles[0], 'users', []),
+    };
   }
 }

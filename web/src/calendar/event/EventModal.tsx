@@ -126,7 +126,7 @@ const renderServices = ({services = [], loading = false, service, onChange, them
         multiple
         value={service}
         onChange={onChange}
-        input={<OutlinedInput id='multiple-services' />}
+        input={<OutlinedInput id='multiple-services' className={classes.serviceInput} />}
         renderValue={(selected: string[]) => (
           <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.5}}>
             {selected.map(value => {
@@ -138,7 +138,6 @@ const renderServices = ({services = [], loading = false, service, onChange, them
                   sx={{
                     backgroundColor: '#94C14E',
                     color: '#fff',
-                    marginTop: '10px',
                   }}
                 />
               );
@@ -148,7 +147,12 @@ const renderServices = ({services = [], loading = false, service, onChange, them
         MenuProps={MenuProps}
       >
         {services.map(({id, name, price, leadTime}) => (
-          <MenuItem key={id} value={`${id}&${name}&${price}&${leadTime}`} style={getStyles(name, service, theme)}>
+          <MenuItem
+            key={id}
+            value={`${id}&${name}&${price}&${leadTime}`}
+            style={getStyles(name, service, theme)}
+            className={classes.serviceMenuItem}
+          >
             {`${name} - ${price} грн`}
           </MenuItem>
         ))}
@@ -367,7 +371,7 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
         })}
         {renderAvailableTimes(timeSlots, time, handleTimeChange)}
         <p className={classes.totalPrice}>
-          Загальна вартість: {totalPrice} грн. Потрібно часу: {totalLeadTime} хв.
+          Загальна вартість: {totalPrice} грн. <br/> Потрібно часу: {totalLeadTime} хв.
         </p>
         {error && <p>{error}</p>}
       </DialogContent>
