@@ -4,6 +4,15 @@
   "description": "",
   "author": "",
   "private": true,
+  "prettier": {
+    "trailingComma": "all",
+    "singleQuote": true,
+    "printWidth": 120,
+    "tabWidth": 2,
+    "jsxSingleQuote": true,
+    "bracketSpacing": false,
+    "arrowParens": "avoid"
+  },
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -24,6 +33,7 @@
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/jwt": "^10.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/sequelize": "^9.0.0",

@@ -14,6 +14,8 @@ import {RoleModule} from './role/role.module';
 import {RoleMappingModule} from './role-mapping/role-mapping.module';
 import { EventModule } from './event/event.module';
 import { ServiceModule } from './service/service.module';
+import { AuthModule } from './auth/auth.module';
+import { AccessTokenModule } from './access-token/access-token.module';
 
 @Module({
   imports: [
@@ -51,7 +53,9 @@ import { ServiceModule } from './service/service.module';
     RoleModule,
     RoleMappingModule,
     EventModule,
-    ServiceModule
+    ServiceModule,
+    AuthModule,
+    AccessTokenModule
   ],
   controllers: [AppController],
   providers: [{

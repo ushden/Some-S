@@ -114,10 +114,11 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
 
   return (
     <Fragment>
+      <p>{(api?.getDate() as unknown) as string}</p>
       <FullCalendar
-        dayCellClassNames="testClassName"
+        dayCellClassNames='testClassName'
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, luxon2Plugin, bootstrap5Plugin]}
-        height="100vh"
+        height='100vh'
         scrollTime={1}
         ref={ref}
         nowIndicator={true}
@@ -140,7 +141,6 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         allDaySlot={false}
         displayEventTime={true}
         displayEventEnd={true}
-        eventDisplay='test'
         allDayText={translate('calendar.all_day')}
         weekText={translate('calendar.week')}
         buttonText={{

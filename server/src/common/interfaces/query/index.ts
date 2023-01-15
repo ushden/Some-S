@@ -28,6 +28,17 @@ interface IProcessedQueryScope<T = unknown> extends Filterable<T>, Pick<FindOpti
   order?: ProcessedOrder[];
 }
 
+interface IToken {
+  id: string,
+  roles: Array<string>,
+  ttl: number,
+  name: string,
+  phone: string,
+  email: string,
+  userId: number,
+  verified: boolean,
+}
+
 interface IProcessedQuery<T = unknown>
   extends IProcessedQueryScope<T>, Pick<QueryOptions, 'nest'>, Pick<FindOptions<T>, 'subQuery'> {}
 
@@ -36,4 +47,5 @@ export {
   INotProcessedQueryScope,
   IProcessedQuery,
   IProcessedQueryScope,
+  IToken,
 }

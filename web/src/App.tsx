@@ -5,7 +5,7 @@ import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {LocalizationProvider} from '@mui/x-date-pickers';
 import 'dayjs/locale/uk';
 
-import restClient, {authClient} from './ra-nest';
+import restClient, {authProvider} from './ra-nest';
 import {Layout} from './layout';
 import {Dashboard} from './dashboard';
 import {theme} from "./layout/theme";
@@ -17,7 +17,6 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './App.css';
 
-const authProvider = authClient();
 const dataProvider = restClient();
 const decoratedDataProvider = dataProviderDecorator(dataProvider);
 const history = createBrowserHistory();

@@ -5,11 +5,13 @@ import {
   Table as SeqTable,
   CreatedAt,
   UpdatedAt,
-  BelongsToMany
+  BelongsToMany,
+  HasOne
 } from "sequelize-typescript";
 import {Table} from "@enums";
 import {Role} from "../../role/entities/role.entity";
 import {RoleMapping} from "../../role-mapping/entities/role-mapping.entity";
+import {AccessToken} from "../../access-token/entities/access-token.entity";
 
 
 @SeqTable({tableName: Table.user})
@@ -42,4 +44,7 @@ export class User extends Model<User> {
 
   @BelongsToMany(() => Role, () => RoleMapping)
   roles: Role[]
+  
+  @HasOne(() => AccessToken, 'userId')
+  token: AccessToken
 }

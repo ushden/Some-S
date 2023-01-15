@@ -7,6 +7,6 @@ import {RoleMapping} from "./entities/role-mapping.entity";
 @Controller(Resource.RoleMapping)
 export class RoleMappingController extends BaseController<RoleMapping>(RoleMapping, Service.RolesMapping){
   constructor(@Inject(Service.RolesMapping) private readonly roleMappingService: RoleMappingService) {
-    super(roleMappingService)
+    super()
   }
 }

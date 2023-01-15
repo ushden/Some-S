@@ -31,7 +31,7 @@ let UserController = class UserController extends (0, base_controller_1.BaseCont
 __decorate([
     openapi.ApiOperation({ description: "" }),
     (0, common_1.Get)('get-masters'),
-    openapi.ApiResponse({ status: 200, type: Object }),
+    openapi.ApiResponse({ status: 200 }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
