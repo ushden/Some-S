@@ -5,6 +5,9 @@ declare enum Service {
     Roles = "Roles",
     RolesMapping = "RolesMapping",
     Events = "Events",
-    Services = "Services"
+    Services = "Services",
+    Auth = "Auth",
+    JWT = "JWT",
+    Token = "Token"
 }
 export { Service };

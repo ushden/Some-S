@@ -24,7 +24,8 @@ RoleMappingModule = __decorate([
         providers: [{
                 provide: _enums_1.Service.RolesMapping,
                 useClass: role_mapping_service_1.RoleMappingService,
-            }]
+            }],
+        exports: [_enums_1.Service.RolesMapping]
     })
 ], RoleMappingModule);
 exports.RoleMappingModule = RoleMappingModule;

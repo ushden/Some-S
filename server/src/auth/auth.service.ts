@@ -9,14 +9,14 @@ import {tokenTtlMilliseconds} from "@constants";
 import {IAccessTokenService} from "../access-token/access-token.service";
 import {CreateAccessTokenDto} from "../access-token/dto/create-access-token.dto";
 
-interface IAuthService {
+export interface IAuthService {
   login: (user: CreateUserDto) => Promise<IToken>;
 }
 
 @Injectable()
 export class AuthService implements IAuthService {
 	constructor(
-		@Inject(Service.JWT) private readonly jwtService: JwtService,
+		private readonly jwtService: JwtService,
 		@Inject(Service.Users) private readonly userService: IUserService,
 		@Inject(Service.Token) private readonly accessTokenService: IAccessTokenService,
 	) {}

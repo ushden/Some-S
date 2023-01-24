@@ -8,6 +8,8 @@ var Resource;
     Resource["RoleMapping"] = "rolesMapping";
     Resource["Event"] = "events";
     Resource["Service"] = "services";
+    Resource["Auth"] = "auth";
+    Resource["Token"] = "tokens";
 })(Resource || (Resource = {}));
 exports.Resource = Resource;
 //# sourceMappingURL=index.js.map

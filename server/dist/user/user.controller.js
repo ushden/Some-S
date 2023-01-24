@@ -21,7 +21,7 @@ const base_controller_1 = require("../base/base.controller");
 const user_entity_1 = require("./entities/user.entity");
 let UserController = class UserController extends (0, base_controller_1.BaseController)(user_entity_1.User, _enums_1.Service.Users) {
     constructor(usersService) {
-        super(usersService);
+        super();
         this.usersService = usersService;
     }
     getMasters() {

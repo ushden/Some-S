@@ -12,14 +12,18 @@ export const authProvider = {
       body: JSON.stringify(params),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
-    const response = await fetch(request)
+    const response = await fetch(request);
   
     if (response.status < 200 || response.status >= 300) {
+      console.error(response.text());
+      
       throw new Error(response.statusText);
     }
   
     const {ttl, ...data} = await response.json();
     storage.save(accessTokenLocalStorageKey, data, ttl);
+    
+    return data;
   },
   checkError: (error: HttpError) => {
     const status = error.status;
@@ -36,7 +40,7 @@ export const authProvider = {
     
     return Promise.resolve(token ? token.roles : []);
   },
-  checkAuth: () => storage.load(accessTokenLocalStorageKey) ? Promise.resolve() : Promise.reject(),
+  checkAuth: () => Promise.resolve(),
   logout: () => {
     storage.remove(accessTokenLocalStorageKey);
     
@@ -44,7 +48,7 @@ export const authProvider = {
   },
   getIdentity: () => {
     try {
-      const token = JSON.parse(storage.load(accessTokenLocalStorageKey));
+      const token = storage.load(accessTokenLocalStorageKey);
       
       return Promise.resolve(token || {});
     } catch (error) {

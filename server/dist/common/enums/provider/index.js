@@ -10,6 +10,9 @@ var Service;
     Service["RolesMapping"] = "RolesMapping";
     Service["Events"] = "Events";
     Service["Services"] = "Services";
+    Service["Auth"] = "Auth";
+    Service["JWT"] = "JWT";
+    Service["Token"] = "Token";
 })(Service || (Service = {}));
 exports.Service = Service;
 //# sourceMappingURL=index.js.map

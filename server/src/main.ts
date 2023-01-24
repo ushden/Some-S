@@ -44,11 +44,7 @@ const bootstrap = async (): Promise<void> => {
     transform: true,
     validateCustomDecorators: true,
     always: true,
-    transformOptions: {
-      excludeExtraneousValues: true,
-      exposeUnsetFields: false,
-      exposeDefaultValues: true,
-    },
+    whitelist: true,
   }));
   app.use(compression());
   app.use(nocache());

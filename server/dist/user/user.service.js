@@ -19,9 +19,10 @@ const base_service_1 = require("../base/base.service");
 const _enums_1 = require("../common/enums");
 const lodash_1 = require("lodash");
 let UserService = class UserService extends (0, base_service_1.BaseService)(user_entity_1.User) {
-    constructor(roleService) {
+    constructor(roleService, roleMappingService) {
         super();
         this.roleService = roleService;
+        this.roleMappingService = roleMappingService;
     }
     async getMasters() {
         const roles = await this.roleService.find({
@@ -32,11 +33,19 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
             rows: (0, lodash_1.get)(roles[0], 'users', []),
         };
     }
+    async createCustomer(userDto) {
+        const user = await this.create(userDto);
+        const role = await this.roleService.getRoleByName(_enums_1.HighestRole.Customer);
+        await this.roleMappingService.create({ roleId: role.id, userId: user.id });
+        user.roles = [role];
+        return user;
+    }
 };
 UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)(_enums_1.Service.Roles)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, common_1.Inject)(_enums_1.Service.RolesMapping)),
+    __metadata("design:paramtypes", [Object, Object])
 ], UserService);
 exports.UserService = UserService;
 //# sourceMappingURL=user.service.js.map

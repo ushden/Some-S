@@ -14,19 +14,20 @@ const sequelize_1 = require("@nestjs/sequelize");
 const user_entity_1 = require("./entities/user.entity");
 const _enums_1 = require("../common/enums");
 const role_module_1 = require("../role/role.module");
+const role_mapping_module_1 = require("../role-mapping/role-mapping.module");
+const access_token_module_1 = require("../access-token/access-token.module");
 let UserModule = class UserModule {
 };
 UserModule = __decorate([
     (0, common_1.Module)({
-        imports: [
-            sequelize_1.SequelizeModule.forFeature([user_entity_1.User]),
-            role_module_1.RoleModule,
-        ],
+        imports: [sequelize_1.SequelizeModule.forFeature([user_entity_1.User]), role_module_1.RoleModule, role_mapping_module_1.RoleMappingModule, access_token_module_1.AccessTokenModule],
         controllers: [user_controller_1.UserController],
-        providers: [{
+        providers: [
+            {
                 provide: _enums_1.Service.Users,
                 useClass: user_service_1.UserService,
-            }],
+            },
+        ],
         exports: [_enums_1.Service.Users],
     })
 ], UserModule);

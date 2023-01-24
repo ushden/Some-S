@@ -20,7 +20,7 @@ const base_controller_1 = require("../base/base.controller");
 const service_entity_1 = require("./entities/service.entity");
 let ServiceController = class ServiceController extends (0, base_controller_1.BaseController)(service_entity_1.Service, _enums_1.Service.Services) {
     constructor(serviceService) {
-        super(serviceService);
+        super();
         this.serviceService = serviceService;
     }
 };

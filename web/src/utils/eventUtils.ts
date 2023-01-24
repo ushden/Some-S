@@ -1,21 +1,42 @@
-import {ICreateEvent, IEvent} from '../interfaces';
+import {ICreateEvent, ICurrentUser, IEvent} from '../interfaces';
 import {EventInput} from '@fullcalendar/core';
 import {Dayjs} from 'dayjs';
 import {DateTime} from 'luxon';
 import {get} from 'lodash';
-import {eventStatusWaiting} from '../constants';
+import {eventStatusApprove, eventStatusDone, eventStatusWaiting, userRoleAdmin} from '../constants';
 
 const isDateBetweenTwoDates = (start: number | string, end: number | string, date: number | string) =>
   +start <= +date && +end >= +date;
 
-const getEventColors = (status: string): string | undefined => {
+const getEventColors = (status: string, background: boolean): string | undefined => {
+  if (!background) {
+    return '#d1b5f5';
+  }
+  
   switch (status) {
     case eventStatusWaiting:
       return '#f9e095';
+    case eventStatusApprove:
+      return '#abede8';
+    case eventStatusDone:
+      return '#c3ebba';
+    default:
+      return '#d1b5f5';
   }
 };
 
-const parseEvents = (events: IEvent[]): EventInput[] => {
+const isEventEditable = (roles: Array<string>, userId: number, masterId: number, customerId: number) => {
+  if (!userId) {
+    return false;
+  }
+  
+  return userId === customerId || masterId === userId;
+};
+
+const parseEvents = (events: IEvent[], currentUser: ICurrentUser): EventInput[] => {
+  const {roles = [], userId} = currentUser;
+  const isAdmin = roles.includes(userRoleAdmin);
+  
   return events.map((event, i) => {
     const {id, start, end, status, masterId, customerId, master, customer, services, price, created} = event;
 
@@ -23,14 +44,15 @@ const parseEvents = (events: IEvent[]): EventInput[] => {
       id,
       title: customer?.name,
       allDay: false,
-      editable: true,
-      interactive: true,
+      editable: isAdmin || isEventEditable(roles, userId, masterId, customerId),
+      interactive: isAdmin,
       start: Number(start),
       end: Number(end),
-      backgroundColor: getEventColors(status),
-      borderColor: getEventColors(status),
+      backgroundColor: getEventColors(status, isAdmin || isEventEditable(roles, userId, masterId, customerId)),
+      borderColor: getEventColors(status, isAdmin || isEventEditable(roles, userId, masterId, customerId)),
       className: 'custom-event',
       textColor: 'rgba(0, 0, 0, 0.6)',
+      display: isEventEditable(roles, userId, masterId, customerId) ? 'auto' : 'background',
       extendedProps: {
         masterName: master?.name,
         customerName: customer?.name,
@@ -112,19 +134,19 @@ const validateEvent = (event: ICreateEvent): string | undefined => {
   const {date, time, services, master} = event;
 
   if (!date) {
-    return 'Date req';
+    return 'Виберіть, будь ласка, дату запису';
   }
 
   if (!master) {
-    return 'MAster req';
+    return 'Виберіть, будь ласка, майстра';
   }
 
   if (!services.length) {
-    return 'Service req';
+    return 'Виберіть, будь ласка, послуги';
   }
 
   if (!time) {
-    return 'Time req';
+    return 'Виберіть, будь ласка, час запису';
   }
 };
 

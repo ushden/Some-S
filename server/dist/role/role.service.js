@@ -11,6 +11,9 @@ const common_1 = require("@nestjs/common");
 const base_service_1 = require("../base/base.service");
 const role_entity_1 = require("./entities/role.entity");
 let RoleService = class RoleService extends (0, base_service_1.BaseService)(role_entity_1.Role) {
+    async getRoleByName(name) {
+        return await this.findOne({ where: { name } });
+    }
 };
 RoleService = __decorate([
     (0, common_1.Injectable)()

@@ -7,5 +7,6 @@ export const CustomAppBar = (props: AppBarProps) => {
   return <AppBar
     {...props}
     className={classes.appBar}
+    title="test"
   />
 };

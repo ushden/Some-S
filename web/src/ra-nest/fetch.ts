@@ -1,7 +1,6 @@
 import HttpError from './HttpError';
 import storage from './storage';
 import {accessTokenLocalStorageKey} from '../constants';
-import {saveUnauthorizedLogoutReasonIfNeeded} from './utils';
 
 export interface FetchOptions {
   headers?: Headers
@@ -62,8 +61,6 @@ export const fetchJson = (url: string, options: FetchOptions) => {
         // not json, no big deal
       }
       if (status === 401) {
-        saveUnauthorizedLogoutReasonIfNeeded();
-
         storage.remove(accessTokenLocalStorageKey);
 
         // workaround for RA: skip multiple redirection to login form

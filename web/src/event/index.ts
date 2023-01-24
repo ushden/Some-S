@@ -1,4 +1,4 @@
-import {eventsResource} from "../../constants";
+import {eventsResource} from "../constants";
 import {EventList} from "./EventList";
 
 export default {

@@ -21,7 +21,7 @@ const base_controller_1 = require("../base/base.controller");
 const role_mapping_entity_1 = require("./entities/role-mapping.entity");
 let RoleMappingController = class RoleMappingController extends (0, base_controller_1.BaseController)(role_mapping_entity_1.RoleMapping, _enums_1.Service.RolesMapping) {
     constructor(roleMappingService) {
-        super(roleMappingService);
+        super();
         this.roleMappingService = roleMappingService;
     }
 };

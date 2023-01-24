@@ -3,6 +3,8 @@ declare enum Resource {
     Role = "roles",
     RoleMapping = "rolesMapping",
     Event = "events",
-    Service = "services"
+    Service = "services",
+    Auth = "auth",
+    Token = "tokens"
 }
 export { Resource };

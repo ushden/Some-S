@@ -13,6 +13,7 @@ import {RoleMapping} from "./entities/role-mapping.entity";
   providers: [{
     provide: Service.RolesMapping,
     useClass: RoleMappingService,
-  }]
+  }],
+  exports: [Service.RolesMapping]
 })
 export class RoleMappingModule {}

@@ -4,19 +4,16 @@ import {AuthController} from './auth.controller';
 import {Service} from '@enums';
 import {JwtModule, JwtService} from '@nestjs/jwt';
 import {UserModule} from '../user/user.module';
-import {RoleMappingModule} from "../role-mapping/role-mapping.module";
-import {RoleModule} from "../role/role.module";
-import {AccessTokenModule} from "../access-token/access-token.module";
+import {RoleMappingModule} from '../role-mapping/role-mapping.module';
+import {RoleModule} from '../role/role.module';
+import {AccessTokenModule} from '../access-token/access-token.module';
+import * as process from "process";
 
 @Module({
   providers: [
     {
       provide: Service.Auth,
       useClass: AuthService,
-    },
-    {
-      provide: Service.JWT,
-      useClass: JwtService,
     },
   ],
   controllers: [AuthController],

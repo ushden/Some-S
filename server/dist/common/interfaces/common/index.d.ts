@@ -1,4 +1,5 @@
+import { AccessToken } from "../../../access-token/entities/access-token.entity";
 interface ICurrentUser {
-    accessToken: any;
+    accessToken: AccessToken;
 }
 export { ICurrentUser, };

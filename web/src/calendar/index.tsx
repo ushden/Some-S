@@ -1,69 +1,97 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useDataProvider, useGetIdentity, useTranslate} from 'react-admin';
+import {WithPermissionsChildrenParams} from 'ra-core/src/auth/WithPermissions';
+import {useTheme} from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import luxon2Plugin from '@fullcalendar/luxon2';
 import bootstrap5Plugin from '@fullcalendar/bootstrap5';
-import {
-  DateSelectArg,
-  EventApi,
-  EventClickArg,
-  EventContentArg,
-  EventInput,
-  EventMountArg,
-  EventSourceFunc,
-} from '@fullcalendar/core';
-import {useDataProvider, useTranslate} from 'react-admin';
-import {EventModal} from './event/EventModal';
-import {WithPermissionsChildrenParams} from 'ra-core/src/auth/WithPermissions';
+import {DateSelectArg, EventClickArg, EventContentArg, EventSourceFunc} from '@fullcalendar/core';
+import dayjs from 'dayjs';
 import {DateTime} from 'luxon';
-import {GET_LIST} from '../ra-nest/types';
-import {eventsResource} from '../constants';
-import {IEvent, IService} from '../interfaces';
 import {get} from 'lodash';
-import {parseEvents} from '../utils';
-import useMediaQuery from "@mui/material/useMediaQuery";
-import {useTheme} from "@mui/material/styles";
 
-const renderEventContent = (eventContent: EventContentArg) => {
+import {useEventContext} from '../context/eventContext';
+import {EventModal} from '../event/EventModal';
+import {GET_LIST} from '../ra-nest/types';
+import {calendarHeadDateFormat, eventsResource, userRoleAdmin} from '../constants';
+import {ICurrentUser, IEvent, IService} from '../interfaces';
+import {parseEvents} from '../utils';
+
+import classes from './calendar.module.css';
+import {forceEventsUpdateType, setEventsType} from '../context/types';
+import {AddEventButton} from '../components/AddEventButton';
+import {useCurrentUser} from '../hooks/useCurrentUser';
+
+const renderEventContent = (eventContent: EventContentArg, user: ICurrentUser) => {
   const services = eventContent.event?.extendedProps?.services?.map((s: IService) => s.name).join(', ');
-  
-  return (
+  const {roles = [], userId} = user;
+  const isAdmin = roles.includes(userRoleAdmin);
+  const showInfo =
+    isAdmin ||
+    userId === eventContent.event?.extendedProps?.customerId ||
+    userId === eventContent.event?.extendedProps?.masterId;
+
+  return showInfo ? (
     <div style={{padding: '2px', overflow: 'hidden'}}>
       <i>{eventContent.timeText}</i>
-      {' - '}
-      <b>{eventContent.event.title}</b>
-      <p style={{marginTop: '2px', marginBottom: '2px'}}>{eventContent.event?.extendedProps?.phone}</p>
+      <p>
+        <b>{eventContent.event.title}</b>
+        {' - '}
+        <i>{eventContent.event?.extendedProps?.phone}</i>
+      </p>
+      <p style={{marginTop: '2px', marginBottom: '2px', overflow: 'hidden'}}>
+        Майстер - {eventContent.event?.extendedProps?.masterName}
+      </p>
       <p style={{marginTop: '2px', marginBottom: '2px', whiteSpace: 'pre-wrap', overflow: 'hidden'}}>{services}</p>
     </div>
-  );
+  ) : null;
 };
 
 export const Calendar = (props: WithPermissionsChildrenParams) => {
   const translate = useTranslate();
+  const currentUser = useCurrentUser();
   const dataProvider = useDataProvider();
+  const {state, dispatch} = useEventContext();
+  const {events = [], forceUpdate = false} = state;
   const ref = useRef<FullCalendar>(null);
   const api = useMemo(() => ref.current?.getApi(), [ref.current]);
-  
+
   console.log(api, 'API');
-  
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  
-  const [needUpdateEvents, setNeedUpdateEvents] = useState(false);
+  const calendarProps = useMemo(() => {
+    return isMobile
+      ? {
+          headerToolbar: {
+            left: 'prev,next',
+            right: 'timeGridWeek,timeGridDay',
+          },
+        }
+      : {
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          },
+        };
+  }, [isMobile]);
+
   const [showEventModal, setShowEventModal] = useState(false);
-  const [events, setEvents] = useState<EventInput[]>([]);
 
   useEffect(() => {
-    if (needUpdateEvents && api) {
-      setNeedUpdateEvents(false);
+    if (forceUpdate && api) {
+      dispatch({type: forceEventsUpdateType});
 
       api.refetchEvents();
     }
-  }, [needUpdateEvents]);
+  }, [forceUpdate]);
 
-  const handleToggleModal = () => setShowEventModal(s => !s);
+  const handleToggleEventModal = () => setShowEventModal(s => !s);
 
   const fetchEvents: EventSourceFunc = useCallback((fetchInfo, successCallback, failureCallback) => {
     const {startStr, endStr} = fetchInfo;
@@ -78,9 +106,9 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         },
       }).then((res: Response) => {
         const events: IEvent[] = get(res, 'data', []);
-        const parsedEvents = parseEvents(events);
+        const parsedEvents = parseEvents(events, currentUser);
 
-        setEvents(parsedEvents);
+        dispatch({type: setEventsType, payload: parsedEvents});
         successCallback(parsedEvents);
       });
     } catch (e) {
@@ -89,50 +117,50 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
   }, []);
 
   const handleDateSelect = (selectInfo: DateSelectArg) => {
-    // console.log(selectInfo, 'selectInfo')
-    let title = prompt('title');
-
-    api?.unselect(); // clear date selection
-
-    if (title) {
-      api?.addEvent({
-        id: '1',
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        allDay: selectInfo.allDay,
-      });
-    }
+    // todo use select date for create event
+    handleToggleEventModal();
   };
 
   const handleEventClick = (clickInfo: EventClickArg) => {
-    // console.log(clickInfo, 'clickInfo')
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      clickInfo.event.remove();
+    const {roles = [], userId} = currentUser;
+    const isAdmin = roles.includes(userRoleAdmin);
+    
+    if (isAdmin) {
+      // show admin edit modal or go to edit page
+      
+      return;
     }
+    
+    if (userId === clickInfo.event?.extendedProps?.customerId) {
+      // show edit for customer
+      
+      return;
+    }
+    
+    if (userId === clickInfo.event?.extendedProps?.masterId) {
+      // show for master, maybe for manager to
+      
+      return;
+    }
+    
+    // or ignore click
   };
 
   return (
     <Fragment>
-      <p>{(api?.getDate() as unknown) as string}</p>
+      {isMobile && (
+        <p className={classes.calendarHeaderDate}>{api ? dayjs(api.getDate()).format(calendarHeadDateFormat) : null}</p>
+      )}
       <FullCalendar
-        dayCellClassNames='testClassName'
+        {...calendarProps}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, luxon2Plugin, bootstrap5Plugin]}
+        themeSystem='bootstrap5'
         height='100vh'
         scrollTime={1}
         ref={ref}
         nowIndicator={true}
         firstDay={1}
         events={fetchEvents}
-        // headerToolbar={{
-        //   left: 'prev,next today',
-        //   center: 'title',
-        //   right: 'newEvent dayGridMonth,timeGridWeek,timeGridDay',
-        // }}
-        headerToolbar={{
-          left: 'prev,next',
-          right: 'newEvent timeGridWeek,timeGridDay',
-        }}
         initialView='timeGridDay'
         loading={isLoading => {
           console.log(isLoading, 'isLoading');
@@ -169,22 +197,12 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         slotLaneClassNames={['row-height']}
         expandRows={true}
         select={handleDateSelect}
-        themeSystem='bootstrap5'
-        customButtons={{
-          newEvent: {
-            text: 'Додати запис',
-            click() {
-              setShowEventModal(true);
-            },
-            icon: 'plus-circle-dotted',
-          },
-        }}
         buttonHints={{
           next: translate('calendar.next'),
           prev: translate('calendar.prev'),
           today: translate('calendar.today'),
         }}
-        eventContent={renderEventContent}
+        eventContent={event => renderEventContent(event, currentUser)}
         eventClick={handleEventClick}
         eventDidMount={mountArg => {}}
         eventsSet={events => {
@@ -207,14 +225,8 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         }}
         locale='uk'
       />
-      {showEventModal && (
-        <EventModal
-          open={showEventModal}
-          onClose={handleToggleModal}
-          events={events}
-          setNeedUpdateEvents={setNeedUpdateEvents}
-        />
-      )}
+      {showEventModal && <EventModal open={showEventModal} onClose={handleToggleEventModal} events={events} />}
+      <AddEventButton onClick={handleToggleEventModal} />
     </Fragment>
   );
 };

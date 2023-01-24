@@ -15,9 +15,10 @@ const sequelize_typescript_1 = require("sequelize-typescript");
 const _enums_1 = require("../../common/enums");
 const role_entity_1 = require("../../role/entities/role.entity");
 const role_mapping_entity_1 = require("../../role-mapping/entities/role-mapping.entity");
+const access_token_entity_1 = require("../../access-token/entities/access-token.entity");
 let User = class User extends sequelize_typescript_1.Model {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, phone: { required: true, type: () => String }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, verified: { required: true, type: () => Boolean }, meta: { required: true, type: () => Object }, roles: { required: true, type: () => [require("../../role/entities/role.entity").Role] } };
+        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, phone: { required: true, type: () => String }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, verified: { required: true, type: () => Boolean }, meta: { required: true, type: () => Object }, roles: { required: true, type: () => [require("../../role/entities/role.entity").Role] }, token: { required: true, type: () => require("../../access-token/entities/access-token.entity").AccessToken } };
     }
 };
 __decorate([
@@ -58,6 +59,10 @@ __decorate([
     (0, sequelize_typescript_1.BelongsToMany)(() => role_entity_1.Role, () => role_mapping_entity_1.RoleMapping),
     __metadata("design:type", Array)
 ], User.prototype, "roles", void 0);
+__decorate([
+    (0, sequelize_typescript_1.HasOne)(() => access_token_entity_1.AccessToken, 'userId'),
+    __metadata("design:type", access_token_entity_1.AccessToken)
+], User.prototype, "token", void 0);
 User = __decorate([
     (0, sequelize_typescript_1.Table)({ tableName: _enums_1.Table.user })
 ], User);

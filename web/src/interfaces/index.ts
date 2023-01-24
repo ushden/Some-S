@@ -30,3 +30,13 @@ export interface ICreateEvent {
   date: Dayjs;
   time: number | null;
 }
+
+export interface ICurrentUser {
+  id: string,
+  roles: Array<string>,
+  name: string,
+  phone: string,
+  email: string,
+  userId: number,
+  verified: boolean,
+}

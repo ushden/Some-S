@@ -22,6 +22,8 @@ const role_module_1 = require("./role/role.module");
 const role_mapping_module_1 = require("./role-mapping/role-mapping.module");
 const event_module_1 = require("./event/event.module");
 const service_module_1 = require("./service/service.module");
+const auth_module_1 = require("./auth/auth.module");
+const access_token_module_1 = require("./access-token/access-token.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -58,7 +60,9 @@ AppModule = __decorate([
             role_module_1.RoleModule,
             role_mapping_module_1.RoleMappingModule,
             event_module_1.EventModule,
-            service_module_1.ServiceModule
+            service_module_1.ServiceModule,
+            auth_module_1.AuthModule,
+            access_token_module_1.AccessTokenModule
         ],
         controllers: [app_controller_1.AppController],
         providers: [{

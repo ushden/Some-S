@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {LegacyDataProvider, useDataProvider} from 'react-admin';
+import {LegacyDataProvider, useDataProvider, useGetIdentity, useNotify, usePermissions} from 'react-admin';
 import dayjs, {Dayjs} from 'dayjs';
 import {EventInput} from '@fullcalendar/core';
 import IconButton from '@mui/material/IconButton';
@@ -26,15 +26,18 @@ import Slide from '@mui/material/Slide';
 import TextField from '@mui/material/TextField';
 import {DatePicker} from '@mui/x-date-pickers/DatePicker';
 import {TransitionProps} from '@mui/material/transitions';
-import {useTheme, Theme} from '@mui/material/styles';
-
-import {getTimeSlots, parseCombinedValue, validateEvent} from '../../utils';
-import {createEvent, fetchMaters, fetchServices} from '../../functions';
-import {ICreateEvent, IEvent, IService} from '../../interfaces';
-
-import classes from './event.module.css';
+import {Theme, useTheme} from '@mui/material/styles';
 import {DateTime} from 'luxon';
-import {eventStatusWaiting} from '../../constants';
+
+import {getTimeSlots, parseCombinedValue, validateEvent} from '../utils';
+import {createEvent, fetchMaters, fetchServices} from '../functions';
+import {IEvent, IService} from '../interfaces';
+import {eventStatusWaiting} from '../constants';
+import {useLoginContext} from '../context/loginContext';
+import {setEventType, toggleLoginModalType} from '../context/types';
+import {useEventContext} from '../context/eventContext';
+
+import classes from '../calendar/calendar.module.css';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -59,7 +62,6 @@ interface IEventModal {
   open: boolean;
   onClose: () => void;
   pickedDate?: string;
-  setNeedUpdateEvents: React.Dispatch<React.SetStateAction<boolean>>;
   events: EventInput[];
 }
 
@@ -166,9 +168,15 @@ const renderAvailableTimes = (
   timeSlots: {display: string; start: number; end: number}[],
   time: number | null,
   onChange: (t: number) => void,
+  chosenServices: Array<string>,
+  master: string,
 ) => {
   if (!timeSlots.length) {
     return null;
+  }
+  
+  if (chosenServices && chosenServices.length && time && master && !timeSlots.length) {
+    return <p>Немає вільного часу для запису. Спробуйте вибрати іншу дату, майстра аюо послуги</p>
   }
 
   return (
@@ -189,10 +197,15 @@ const renderAvailableTimes = (
   );
 };
 
-export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventModal) => {
+export const EventModal = ({open, onClose, events}: IEventModal) => {
   const dataProvider = useDataProvider();
+  const notify = useNotify();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const {permissions} = usePermissions();
+  const {identity} = useGetIdentity();
+  const {dispatch: updateLoginState} = useLoginContext();
+  const {dispatch: updateEventState} = useEventContext();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -246,15 +259,21 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
         .plus({minutes: totalLeadTime})
         .valueOf(),
       status: eventStatusWaiting,
-      customerId: 3,
+      customerId: identity?.userId,
       price: totalPrice,
     };
-
-    // setLoading(true);
+    
+    if (!permissions.length || !identity) {
+      updateEventState({type: setEventType, payload: data});
+      updateLoginState({type: toggleLoginModalType});
+      onClose();
+      
+      return;
+    }
+    
     try {
-      await createEvent((dataProvider as unknown) as LegacyDataProvider, data);
-  
-      setNeedUpdateEvents(true);
+      await createEvent((dataProvider as unknown) as LegacyDataProvider, data, notify, updateEventState);
+      
       onClose();
     } catch (e) {
       console.error(e);
@@ -369,7 +388,7 @@ export const EventModal = ({open, onClose, events, setNeedUpdateEvents}: IEventM
           service: chosenServices,
           onChange: handleChosenServices,
         })}
-        {renderAvailableTimes(timeSlots, time, handleTimeChange)}
+        {renderAvailableTimes(timeSlots, time, handleTimeChange, chosenServices, master)}
         <p className={classes.totalPrice}>
           Загальна вартість: {totalPrice} грн. <br/> Потрібно часу: {totalLeadTime} хв.
         </p>
