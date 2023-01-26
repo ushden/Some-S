@@ -33,11 +33,13 @@ import {getTimeSlots, parseCombinedValue, validateEvent} from '../utils';
 import {createEvent, fetchMaters, fetchServices} from '../functions';
 import {IEvent, IService} from '../interfaces';
 import {eventStatusWaiting} from '../constants';
-import {useLoginContext} from '../context/loginContext';
-import {setEventType, toggleLoginModalType} from '../context/types';
-import {useEventContext} from '../context/eventContext';
+import {setEventType} from '../context/types';
+import {setEventAction, toggleLoginModalAction} from "../context/actions";
+import {useLoginDispatch} from "../context/loginContext";
 
 import classes from '../calendar/calendar.module.css';
+import {useCurrentUser} from "../hooks/useCurrentUser";
+import {useEventDispatch} from "../context/eventContext";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -203,9 +205,9 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const {permissions} = usePermissions();
-  const {identity} = useGetIdentity();
-  const {dispatch: updateLoginState} = useLoginContext();
-  const {dispatch: updateEventState} = useEventContext();
+  const currentUser = useCurrentUser();
+  const updateLoginState = useLoginDispatch();
+  const updateEventState = useEventDispatch();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -259,13 +261,13 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
         .plus({minutes: totalLeadTime})
         .valueOf(),
       status: eventStatusWaiting,
-      customerId: identity?.userId,
+      customerId: currentUser?.userId,
       price: totalPrice,
     };
     
-    if (!permissions.length || !identity) {
-      updateEventState({type: setEventType, payload: data});
-      updateLoginState({type: toggleLoginModalType});
+    if (!permissions.length || !currentUser) {
+      updateEventState(setEventAction(data));
+      updateLoginState(toggleLoginModalAction());
       onClose();
       
       return;

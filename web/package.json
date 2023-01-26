@@ -17,6 +17,7 @@
     "@fullcalendar/core": "^6.0.1",
     "@fullcalendar/daygrid": "^6.0.1",
     "@fullcalendar/interaction": "^6.0.1",
+    "@fullcalendar/list": "^6.0.3",
     "@fullcalendar/luxon2": "^6.0.1",
     "@fullcalendar/react": "^6.0.1",
     "@fullcalendar/timegrid": "^6.0.1",
@@ -34,6 +35,7 @@
     "react-admin": "^4.6.2",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "react-tracked": "^1.7.11",
     "web-vitals": "^2.1.0"
   },
   "scripts": {

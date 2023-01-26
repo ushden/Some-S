@@ -25,20 +25,39 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
         this.roleMappingService = roleMappingService;
     }
     async getMasters() {
-        const roles = await this.roleService.find({
-            where: { name: _enums_1.HighestRole.Master },
-            include: ['users'],
-        });
-        return {
-            rows: (0, lodash_1.get)(roles[0], 'users', []),
-        };
+        try {
+            const roles = await this.roleService.find({
+                where: { name: _enums_1.HighestRole.Master },
+                include: ['users'],
+            });
+            return {
+                rows: (0, lodash_1.get)(roles[0], 'users', []),
+            };
+        }
+        catch (e) {
+            throw new common_1.BadRequestException();
+        }
     }
     async createCustomer(userDto) {
-        const user = await this.create(userDto);
-        const role = await this.roleService.getRoleByName(_enums_1.HighestRole.Customer);
-        await this.roleMappingService.create({ roleId: role.id, userId: user.id });
-        user.roles = [role];
-        return user;
+        try {
+            const user = await this.create(userDto);
+            const role = await this.roleService.getRoleByName(_enums_1.HighestRole.Customer);
+            await this.roleMappingService.create({ roleId: role.id, userId: user.id });
+            user.roles = [role];
+            return user;
+        }
+        catch (e) {
+            throw new common_1.BadRequestException();
+        }
+    }
+    async checkIfExist(phone) {
+        try {
+            const count = await this.count({ where: { phone } });
+            return !!count;
+        }
+        catch (e) {
+            throw new common_1.BadRequestException();
+        }
     }
 };
 UserService = __decorate([

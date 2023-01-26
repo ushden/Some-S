@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
-const user_service_1 = require("./user.service");
 const _enums_1 = require("../common/enums");
 const base_controller_1 = require("../base/base.controller");
 const user_entity_1 = require("./entities/user.entity");
@@ -27,6 +26,9 @@ let UserController = class UserController extends (0, base_controller_1.BaseCont
     getMasters() {
         return this.usersService.getMasters();
     }
+    checkIfExist(phone) {
+        return this.usersService.checkIfExist(phone);
+    }
 };
 __decorate([
     openapi.ApiOperation({ description: "" }),
@@ -36,10 +38,19 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "getMasters", null);
+__decorate([
+    openapi.ApiOperation({ description: "" }),
+    (0, common_1.Get)('check-exist'),
+    openapi.ApiResponse({ status: 200, type: Boolean }),
+    __param(0, (0, common_1.Query)('phone')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "checkIfExist", null);
 UserController = __decorate([
     (0, common_1.Controller)(_enums_1.Resource.User),
     __param(0, (0, common_1.Inject)(_enums_1.Service.Users)),
-    __metadata("design:paramtypes", [user_service_1.UserService])
+    __metadata("design:paramtypes", [Object])
 ], UserController);
 exports.UserController = UserController;
 //# sourceMappingURL=user.controller.js.map

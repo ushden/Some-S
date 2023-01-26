@@ -22,7 +22,7 @@ npm-debug.log
 /coverage
 /build
 /web/build
-/server-nestjs/dist
+/server/dist
 .DS_Store
 .env
 .env.local

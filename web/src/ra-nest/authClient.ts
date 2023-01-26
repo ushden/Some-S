@@ -44,7 +44,7 @@ export const authProvider = {
   logout: () => {
     storage.remove(accessTokenLocalStorageKey);
     
-    return Promise.resolve('/');
+    window.location.reload();
   },
   getIdentity: () => {
     try {

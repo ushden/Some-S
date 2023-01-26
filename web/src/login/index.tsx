@@ -12,7 +12,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import {createEvent} from '../functions';
 import {standardPhoneLength} from '../constants';
-import {useEventContext} from '../context/eventContext';
+import {useEventDispatch, useEventState} from '../context/eventContext';
+import {setEventAction} from '../context/actions';
+import {checkIfUserExist} from "../functions/checkIfUserExist";
 
 interface ILoginModal {
   open: boolean;
@@ -21,20 +23,21 @@ interface ILoginModal {
 
 export const LoginModal = (props: ILoginModal) => {
   const {onClose, open} = props;
-  const {state} = useEventContext();
+  const state = useEventState();
   const {event} = state;
 
   const translate = useTranslate();
   const login = useLogin();
   const notify = useNotify();
   const dataProvider = useDataProvider();
-  const {dispatch} = useEventContext();
+  const updateEventState = useEventDispatch();
 
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
+  const [needRegistration, setNeedRegistration] = useState(false);
 
   const handleSaveClick = async () => {
-    if (!name) {
+    if (!name && needRegistration) {
       notify('users.errors.name', {type: 'warning'});
 
       return;
@@ -53,6 +56,18 @@ export const LoginModal = (props: ILoginModal) => {
     }
 
     try {
+      let isExist = false;
+      
+      if (!needRegistration) {
+        isExist = await checkIfUserExist((dataProvider as unknown) as LegacyDataProvider, phone);
+      }
+      
+      if (!isExist && !needRegistration) {
+        setNeedRegistration(true);
+        
+        return;
+      }
+      
       const response = await login({name, phone});
 
       if (event) {
@@ -60,11 +75,13 @@ export const LoginModal = (props: ILoginModal) => {
           (dataProvider as unknown) as LegacyDataProvider,
           {...event, customerId: response.userId},
           notify,
-          dispatch,
-          );
+          updateEventState,
+        );
+
+        updateEventState(setEventAction(null));
       }
-      
-      onClose();
+
+      window.location.reload();
     } catch (e) {
       // @ts-ignore
       notify(e.message, {type: 'error'});
@@ -83,16 +100,10 @@ export const LoginModal = (props: ILoginModal) => {
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{translate('users.login.title')}</DialogTitle>
       <DialogContent>
-        <DialogContentText>{translate('users.login.content')}</DialogContentText>
+        <DialogContentText>
+          {needRegistration ? translate('users.login.registration_content') : translate('users.login.content')}
+        </DialogContentText>
         <FormControl variant='outlined' sx={{width: '100%'}}>
-          <TextField
-            label={translate('users.fields.name')}
-            variant='outlined'
-            value={name}
-            onChange={handleNameChange}
-            required
-            sx={{mb: '1rem', width: '100%'}}
-          />
           <TextField
             label={translate('users.fields.phone')}
             value={phone}
@@ -105,6 +116,16 @@ export const LoginModal = (props: ILoginModal) => {
             required
             sx={{width: '100%'}}
           />
+          {needRegistration && (
+            <TextField
+              label={translate('users.fields.name')}
+              variant='outlined'
+              value={name}
+              onChange={handleNameChange}
+              required
+              sx={{mb: '1rem', width: '100%'}}
+            />
+          )}
         </FormControl>
       </DialogContent>
       <DialogActions>

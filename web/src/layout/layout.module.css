@@ -9,3 +9,11 @@
 .menu {
     color: #cccccc;
 }
+
+.spacer {
+    flex: 1;
+}
+
+.button {
+    color: #fff;
+}

@@ -3,14 +3,15 @@ import {Layout, LayoutProps} from 'react-admin';
 import {CustomAppBar} from './AppBar';
 import {CustomMenu} from './Menu';
 import {LoginModal} from '../login';
-import {useLoginContext} from "../context/loginContext";
-import {toggleLoginModalType} from "../context/types";
+import {useLoginDispatch, useLoginState} from "../context/loginContext";
+import {toggleLoginModalAction} from "../context/actions";
 
 export const CustomLayout = ({children, ...props}: LayoutProps): JSX.Element => {
-  const {state, dispatch} = useLoginContext();
+  const updateLoginState = useLoginDispatch();
+  const state = useLoginState();
   
   const handleToggleLoginModal = () => {
-    dispatch({type: toggleLoginModalType});
+    updateLoginState(toggleLoginModalAction());
   };
   
   return (
