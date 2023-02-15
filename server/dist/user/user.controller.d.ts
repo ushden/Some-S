@@ -6,5 +6,6 @@ export declare class UserController extends UserController_base {
     constructor(usersService: IUserService);
     private getMasters;
     private checkIfExist;
+    private createCustomer;
 }
 export {};

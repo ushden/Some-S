@@ -27,6 +27,15 @@ let CommonUtilsService = CommonUtilsService_1 = class CommonUtilsService {
     static isLocalEnvironment(environment) {
         return ![_enums_1.Env.Prod].includes(environment);
     }
+    static transformPhone(phone) {
+        if (phone.length === 10) {
+            phone = `+380${phone}`;
+        }
+        if (phone.length === 13 && phone.startsWith('380')) {
+            phone = `+${phone}`;
+        }
+        return phone;
+    }
     static concatIdWithOptions(id, _a) {
         var { where } = _a, rest = __rest(_a, ["where"]);
         if (CommonUtilsService_1.isEmptyObject(where)) {

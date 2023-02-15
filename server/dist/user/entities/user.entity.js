@@ -18,7 +18,7 @@ const role_mapping_entity_1 = require("../../role-mapping/entities/role-mapping.
 const access_token_entity_1 = require("../../access-token/entities/access-token.entity");
 let User = class User extends sequelize_typescript_1.Model {
     static _OPENAPI_METADATA_FACTORY() {
-        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, phone: { required: true, type: () => String }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, verified: { required: true, type: () => Boolean }, meta: { required: true, type: () => Object }, roles: { required: true, type: () => [require("../../role/entities/role.entity").Role] }, token: { required: true, type: () => require("../../access-token/entities/access-token.entity").AccessToken } };
+        return { id: { required: true, type: () => Number }, email: { required: true, type: () => String }, name: { required: true, type: () => String }, phone: { required: true, type: () => String }, createdAt: { required: true, type: () => Date }, updatedAt: { required: true, type: () => Date }, verified: { required: true, type: () => Boolean }, meta: { required: true, type: () => Object }, telegramChatId: { required: true, type: () => String }, roles: { required: true, type: () => [require("../../role/entities/role.entity").Role] }, token: { required: true, type: () => require("../../access-token/entities/access-token.entity").AccessToken } };
     }
 };
 __decorate([
@@ -55,6 +55,10 @@ __decorate([
     (0, sequelize_typescript_1.Column)({ allowNull: true, defaultValue: {}, type: sequelize_typescript_1.DataType.JSON }),
     __metadata("design:type", Object)
 ], User.prototype, "meta", void 0);
+__decorate([
+    (0, sequelize_typescript_1.Column)({ allowNull: true, type: sequelize_typescript_1.DataType.STRING, unique: true }),
+    __metadata("design:type", String)
+], User.prototype, "telegramChatId", void 0);
 __decorate([
     (0, sequelize_typescript_1.BelongsToMany)(() => role_entity_1.Role, () => role_mapping_entity_1.RoleMapping),
     __metadata("design:type", Array)

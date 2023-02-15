@@ -5,6 +5,14 @@ enum Status {
   waiting = 'waiting'
 }
 
+enum StatusMapping {
+  done = 'Виконано',
+  approve = 'Запис підтверджений',
+  reject = 'Відхилино',
+  waiting = 'Очікує підтвердження',
+}
+
 export {
-  Status
+  Status,
+  StatusMapping,
 }

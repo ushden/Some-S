@@ -18,6 +18,7 @@ const user_entity_1 = require("./entities/user.entity");
 const base_service_1 = require("../base/base.service");
 const _enums_1 = require("../common/enums");
 const lodash_1 = require("lodash");
+const common_utils_1 = require("../common/utils/common-utils");
 let UserService = class UserService extends (0, base_service_1.BaseService)(user_entity_1.User) {
     constructor(roleService, roleMappingService) {
         super();
@@ -39,8 +40,10 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
         }
     }
     async createCustomer(userDto) {
+        const { name, phone } = userDto;
+        const updatedPhone = common_utils_1.CommonUtilsService.transformPhone(phone);
         try {
-            const user = await this.create(userDto);
+            const user = await this.create({ name, phone: updatedPhone });
             const role = await this.roleService.getRoleByName(_enums_1.HighestRole.Customer);
             await this.roleMappingService.create({ roleId: role.id, userId: user.id });
             user.roles = [role];
@@ -58,6 +61,10 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
         catch (e) {
             throw new common_1.BadRequestException();
         }
+    }
+    async updateTelegramChatId(id, chatId) {
+        const [, user] = await this.update({ telegramChatId: chatId }, { where: { id } });
+        return user[0];
     }
 };
 UserService = __decorate([

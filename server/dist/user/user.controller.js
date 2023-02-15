@@ -18,6 +18,8 @@ const common_1 = require("@nestjs/common");
 const _enums_1 = require("../common/enums");
 const base_controller_1 = require("../base/base.controller");
 const user_entity_1 = require("./entities/user.entity");
+const create_user_dto_1 = require("./dto/create-user.dto");
+const _pipes_1 = require("../common/pipes");
 let UserController = class UserController extends (0, base_controller_1.BaseController)(user_entity_1.User, _enums_1.Service.Users) {
     constructor(usersService) {
         super();
@@ -28,6 +30,9 @@ let UserController = class UserController extends (0, base_controller_1.BaseCont
     }
     checkIfExist(phone) {
         return this.usersService.checkIfExist(phone);
+    }
+    createCustomer(user) {
+        return this.usersService.createCustomer(user);
     }
 };
 __decorate([
@@ -42,11 +47,20 @@ __decorate([
     openapi.ApiOperation({ description: "" }),
     (0, common_1.Get)('check-exist'),
     openapi.ApiResponse({ status: 200, type: Boolean }),
-    __param(0, (0, common_1.Query)('phone')),
+    __param(0, (0, common_1.Query)('phone', new _pipes_1.PhoneTransform())),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "checkIfExist", null);
+__decorate([
+    openapi.ApiOperation({ description: "" }),
+    (0, common_1.Post)('create-customer'),
+    openapi.ApiResponse({ status: 201, type: require("./entities/user.entity").User }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
+    __metadata("design:returntype", void 0)
+], UserController.prototype, "createCustomer", null);
 UserController = __decorate([
     (0, common_1.Controller)(_enums_1.Resource.User),
     __param(0, (0, common_1.Inject)(_enums_1.Service.Users)),

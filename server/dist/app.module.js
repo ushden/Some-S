@@ -24,6 +24,7 @@ const event_module_1 = require("./event/event.module");
 const service_module_1 = require("./service/service.module");
 const auth_module_1 = require("./auth/auth.module");
 const access_token_module_1 = require("./access-token/access-token.module");
+const telegram_module_1 = require("./telergam/telegram.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -62,13 +63,16 @@ AppModule = __decorate([
             event_module_1.EventModule,
             service_module_1.ServiceModule,
             auth_module_1.AuthModule,
-            access_token_module_1.AccessTokenModule
+            access_token_module_1.AccessTokenModule,
+            telegram_module_1.TelegramModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [{
+        providers: [
+            {
                 provide: _enums_1.Service.App,
                 useClass: app_service_1.AppService,
-            }],
+            },
+        ],
     })
 ], AppModule);
 exports.AppModule = AppModule;

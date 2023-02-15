@@ -10,6 +10,7 @@ export declare class User extends Model<User> {
     updatedAt: Date;
     verified: boolean;
     meta: object;
+    telegramChatId: string;
     roles: Role[];
     token: AccessToken;
 }

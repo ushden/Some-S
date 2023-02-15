@@ -11,6 +11,18 @@ export class CommonUtilsService implements ICommonUtilsService {
   public static isLocalEnvironment(environment: string): boolean {
     return ![Env.Prod].includes(environment as Env);
   }
+  
+  public static transformPhone(phone: string) {
+    if (phone.length === 10) {
+      phone = `+380${phone}`;
+    }
+  
+    if (phone.length === 13 && phone.startsWith('380')) {
+      phone = `+${phone}`;
+    }
+    
+    return phone;
+  }
 
   public static concatIdWithOptions<T extends Filterable>(id: Identifier, {where, ...rest}: T): T { // TODO: Fix assertion
     if (CommonUtilsService.isEmptyObject(where)) {

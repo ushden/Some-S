@@ -13,6 +13,7 @@ var Service;
     Service["Auth"] = "Auth";
     Service["JWT"] = "JWT";
     Service["Token"] = "Token";
+    Service["Telegram"] = "Telegram";
 })(Service || (Service = {}));
 exports.Service = Service;
 //# sourceMappingURL=index.js.map

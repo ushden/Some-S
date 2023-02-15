@@ -1,5 +1,5 @@
 import React, {ChangeEvent, useState} from 'react';
-import {LegacyDataProvider, useDataProvider, useLogin, useNotify, useTranslate} from 'react-admin';
+import {LegacyDataProvider, useLogin, useNotify, useTranslate} from 'react-admin';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -15,6 +15,7 @@ import {standardPhoneLength} from '../constants';
 import {useEventDispatch, useEventState} from '../context/eventContext';
 import {setEventAction} from '../context/actions';
 import {checkIfUserExist} from "../functions/checkIfUserExist";
+import {useCustomDataProvider} from "../hooks/useDataProvider";
 
 interface ILoginModal {
   open: boolean;
@@ -29,7 +30,7 @@ export const LoginModal = (props: ILoginModal) => {
   const translate = useTranslate();
   const login = useLogin();
   const notify = useNotify();
-  const dataProvider = useDataProvider();
+  const dataProvider = useCustomDataProvider();
   const updateEventState = useEventDispatch();
 
   const [phone, setPhone] = useState('');
@@ -59,7 +60,7 @@ export const LoginModal = (props: ILoginModal) => {
       let isExist = false;
       
       if (!needRegistration) {
-        isExist = await checkIfUserExist((dataProvider as unknown) as LegacyDataProvider, phone);
+        isExist = await checkIfUserExist(dataProvider, phone);
       }
       
       if (!isExist && !needRegistration) {
@@ -72,7 +73,7 @@ export const LoginModal = (props: ILoginModal) => {
 
       if (event) {
         await createEvent(
-          (dataProvider as unknown) as LegacyDataProvider,
+          dataProvider,
           {...event, customerId: response.userId},
           notify,
           updateEventState,
@@ -129,10 +130,10 @@ export const LoginModal = (props: ILoginModal) => {
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' onClick={onClose}>
+        <Button color='secondary' onClick={onClose} size='small'>
           {translate('users.login.cancel')}
         </Button>
-        <Button variant='contained' color='success' onClick={handleSaveClick}>
+        <Button variant='contained' color='success' onClick={handleSaveClick} size='small'>
           {translate('users.login.save')}
         </Button>
       </DialogActions>

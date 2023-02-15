@@ -6,6 +6,7 @@ export interface IEvent {
   end: number;
   created: number;
   price: number;
+  leadTime: number;
   services: Array<IService>;
   createdAt?: string;
   updatedAt?: string;
@@ -29,6 +30,10 @@ export interface ICreateEvent {
   services: any;
   date: Dayjs;
   time: number | null;
+  phone?: string;
+  name?: string;
+  permissions?: Array<string>;
+  isNewCustomer?: boolean;
 }
 
 export interface ICurrentUser {

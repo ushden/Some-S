@@ -1,11 +1,16 @@
 import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {useDataProvider, useTranslate} from 'react-admin';
+import {usePermissions, useTranslate} from 'react-admin';
 import {WithPermissionsChildrenParams} from 'ra-core/src/auth/WithPermissions';
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import CalendarIcon from '@mui/icons-material/CalendarMonthOutlined';
 import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import Backdrop from '@mui/material/Backdrop';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import FullCalendar from '@fullcalendar/react';
+import {EventImpl} from '@fullcalendar/core/internal';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
@@ -18,17 +23,17 @@ import {get} from 'lodash';
 
 import {EventModal} from '../event/EventModal';
 import {GET_LIST} from '../ra-nest/types';
-import {eventsResource, userRoleAdmin} from '../constants';
+import {eventsResource, userRoleAdmin, userRoleCustomer} from '../constants';
 import {ICurrentUser, IEvent, IService} from '../interfaces';
 import {parseEvents} from '../utils';
 import {AddEventButton} from '../components/AddEventButton';
 import {useCurrentUser} from '../hooks/useCurrentUser';
+import {EventEditModal} from '../event/EventEditModal';
 import {useEventDispatch, useEventState} from '../context/eventContext';
 import {forceEventsUpdateAction, setEventsAction} from '../context/actions';
 
 import classes from './calendar.module.css';
-import Button from '@mui/material/Button';
-import IconButton from "@mui/material/IconButton";
+import {useCustomDataProvider} from "../hooks/useDataProvider";
 
 const renderEventContent = (eventContent: EventContentArg, user: ICurrentUser) => {
   const services = eventContent.event?.extendedProps?.services?.map((s: IService) => s.name).join(', ');
@@ -43,13 +48,15 @@ const renderEventContent = (eventContent: EventContentArg, user: ICurrentUser) =
     <div style={{padding: '2px', overflow: 'hidden'}}>
       <i>{eventContent.timeText}</i>
       <p style={{marginBottom: '2px', overflow: 'hidden'}}>
-        <b>{eventContent.event.title}</b>{' - '}<i>{eventContent.event?.extendedProps?.phone}</i>
+        <b>{eventContent.event.title}</b>
+        {' - '}
+        <i>{eventContent.event?.extendedProps?.phone}</i>
       </p>
-      <Divider/>
+      <Divider />
       <p style={{marginTop: '2px', marginBottom: '2px', overflow: 'hidden'}}>
         Майстер - {eventContent.event?.extendedProps?.masterName}
       </p>
-      <Divider/>
+      <Divider />
       <p style={{marginTop: '2px', marginBottom: '2px', whiteSpace: 'pre-wrap', overflow: 'hidden'}}>{services}</p>
     </div>
   ) : null;
@@ -58,12 +65,14 @@ const renderEventContent = (eventContent: EventContentArg, user: ICurrentUser) =
 export const Calendar = (props: WithPermissionsChildrenParams) => {
   const translate = useTranslate();
   const currentUser = useCurrentUser();
-  const dataProvider = useDataProvider();
+  const {permissions = []} = usePermissions();
+  const dataProvider = useCustomDataProvider();
   const state = useEventState();
   const updateEventState = useEventDispatch();
   const {events = [], forceUpdate = false} = state;
   const ref = useRef<FullCalendar>(null);
   const api = useMemo(() => ref.current?.getApi(), [ref.current]);
+  const isAdmin = useMemo(() => permissions.includes(userRoleAdmin), [permissions]);
 
   console.log(api, 'API');
 
@@ -102,8 +111,10 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         };
   }, [isMobile]);
 
+  const [loadingEvents, setLoadingEvents] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
-
+  const [eventForEdit, setEventForEdit] = useState<null | EventImpl>(null);
+  
   useEffect(() => {
     if (forceUpdate && api) {
       updateEventState(forceEventsUpdateAction());
@@ -113,7 +124,9 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
   }, [forceUpdate]);
 
   const handleToggleEventModal = () => setShowEventModal(s => !s);
-  
+
+  const handleCloseEditModal = () => setEventForEdit(null);
+
   const handleTodayClick = () => {
     api?.today();
   };
@@ -124,7 +137,6 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
     const end = DateTime.fromISO(endStr).toMillis();
 
     try {
-      // @ts-ignore
       dataProvider(GET_LIST, eventsResource, {
         filter: {
           created: {between: [start, end]},
@@ -146,41 +158,41 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
     handleToggleEventModal();
   };
 
-  const handleEventClick = (clickInfo: EventClickArg) => {
-    const {roles = [], userId} = currentUser;
-    const isAdmin = roles.includes(userRoleAdmin);
+  const handleEventClick = (event: EventClickArg) => {
+    const {roles = []} = currentUser || {};
 
-    if (isAdmin) {
-      // show admin edit modal or go to edit page
-
+    if (!roles.length) {
       return;
     }
 
-    if (userId === clickInfo.event?.extendedProps?.customerId) {
-      // show edit for customer
-
-      return;
-    }
-
-    if (userId === clickInfo.event?.extendedProps?.masterId) {
-      // show for master, maybe for manager to
-
-      return;
-    }
-
-    // or ignore click
+    setEventForEdit(event.event);
   };
+  
+  if (!isAdmin) {
+    calendarProps.headerToolbar.right = 'timeGridDay';
+    calendarProps.buttonText.day = translate('calendar.events');
+  }
 
   return (
     <Fragment>
+      <Backdrop open={loadingEvents} sx={{
+        color: '#94C14E',
+        zIndex: theme => theme.zIndex.drawer + 48,
+      }}>
+        <CircularProgress color='inherit'/>
+      </Backdrop>
       {isMobile && api && (
         <div className={classes.mobileHeader}>
-          <Button variant='outlined' color='success' sx={{textTransform: 'none'}} size="small" onClick={handleTodayClick}>
+          <Button
+            variant='outlined'
+            color='success'
+            sx={{textTransform: 'none'}}
+            size='small'
+            onClick={handleTodayClick}
+          >
             {translate('calendar.today')}
           </Button>
-          <span className={classes.calendarHeaderDate}>
-            {api.view.title}
-          </span>
+          <span className={classes.calendarHeaderDate}>{api.view.title}</span>
           <IconButton>
             <CalendarIcon/>
           </IconButton>
@@ -197,9 +209,8 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         firstDay={1}
         events={fetchEvents}
         initialView='timeGridDay'
-        loading={isLoading => {
-          console.log(isLoading, 'isLoading');
-        }}
+        loading={setLoadingEvents}
+        
         editable={true}
         noEventsText={translate('calendar.no_events')}
         allDaySlot={false}
@@ -232,28 +243,10 @@ export const Calendar = (props: WithPermissionsChildrenParams) => {
         }}
         eventContent={event => renderEventContent(event, currentUser)}
         eventClick={handleEventClick}
-        eventDidMount={mountArg => {}}
-        eventsSet={events => {
-          console.log(events, '=-=-=--=-=-=-=- Events SET =-=-=--=-=-=-=-');
-        }}
-        eventAdd={function (p) {
-          console.log(p, 'eventAdd');
-        }}
-        eventChange={function (p) {
-          console.log(p, 'eventChange');
-        }}
-        eventRemove={function (p) {
-          console.log(p, 'eventRemove');
-        }}
-        eventDragStart={function (p) {
-          console.log(p, 'eventDragStart');
-        }}
-        eventDragStop={function (p) {
-          console.log(p, 'eventDragStop');
-        }}
         locale='uk'
       />
       {showEventModal && <EventModal open={showEventModal} onClose={handleToggleEventModal} events={events} />}
+      {eventForEdit && <EventEditModal open={!!eventForEdit} onClose={handleCloseEditModal} event={eventForEdit} />}
       <AddEventButton onClick={handleToggleEventModal} />
     </Fragment>
   );

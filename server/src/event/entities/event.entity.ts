@@ -29,6 +29,9 @@ export class Event extends Model<Event> {
   @Column({type: DataType.BIGINT, allowNull: false})
   price: number
   
+  @Column({type: DataType.BIGINT, allowNull: false})
+  leadTime: number
+  
   @Column({type: DataType.JSON, allowNull: false, defaultValue: []})
   services: Array<IService>
 

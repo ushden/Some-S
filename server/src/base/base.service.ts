@@ -30,7 +30,6 @@ export interface IBaseService<M extends Model<M>> {
   findAndCountAll(options?: Omit<FindAndCountOptions<Attributes<M>>, 'group'>): Promise<{rows: M[]; count: number}>;
   delete(options?: DestroyOptions<Attributes<M>>): Promise<number>;
   update(values: Partial<M>, options: Omit<UpdateOptions<Attributes<M>>, 'returning'>): Promise<[number, M[]]>;
-  // registerFakeIncludes<P extends IProcessedQuery<M>, R extends M>(fakeIncludes: FakeIncludes<M, P, R>): void;
 }
 
 export const BaseService = <T extends Model<T>>(model: ModelCtor<T>): Type<IBaseService<T>> => {

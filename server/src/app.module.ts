@@ -1,6 +1,6 @@
 import {Module} from '@nestjs/common';
-import {ConfigModule, ConfigService} from "@nestjs/config";
-import {CommonUtilsService} from "@utils/common-utils";
+import {ConfigModule, ConfigService} from '@nestjs/config';
+import {CommonUtilsService} from '@utils/common-utils';
 import {WinstonModule, utilities as nestWinstonModuleUtilities} from 'nest-winston';
 import * as winston from 'winston';
 import {SequelizeModule} from '@nestjs/sequelize';
@@ -8,14 +8,15 @@ import {SequelizeModule} from '@nestjs/sequelize';
 import {AppController} from './app.controller';
 import {AppService} from './app.service';
 import {UserModule} from './user/user.module';
-import * as process from "process";
-import {Service} from "@enums";
+import * as process from 'process';
+import {Service} from '@enums';
 import {RoleModule} from './role/role.module';
 import {RoleMappingModule} from './role-mapping/role-mapping.module';
-import { EventModule } from './event/event.module';
-import { ServiceModule } from './service/service.module';
-import { AuthModule } from './auth/auth.module';
-import { AccessTokenModule } from './access-token/access-token.module';
+import {EventModule} from './event/event.module';
+import {ServiceModule} from './service/service.module';
+import {AuthModule} from './auth/auth.module';
+import {AccessTokenModule} from './access-token/access-token.module';
+import {TelegramModule} from './telergam/telegram.module';
 
 @Module({
   imports: [
@@ -40,10 +41,7 @@ import { AccessTokenModule } from './access-token/access-token.module';
       useFactory: () => ({
         transports: [
           new winston.transports.Console({
-            format: winston.format.combine(
-              winston.format.timestamp(),
-              nestWinstonModuleUtilities.format.nestLike(),
-            ),
+            format: winston.format.combine(winston.format.timestamp(), nestWinstonModuleUtilities.format.nestLike()),
           }),
         ],
       }),
@@ -55,13 +53,15 @@ import { AccessTokenModule } from './access-token/access-token.module';
     EventModule,
     ServiceModule,
     AuthModule,
-    AccessTokenModule
+    AccessTokenModule,
+    TelegramModule,
   ],
   controllers: [AppController],
-  providers: [{
-    provide: Service.App,
-    useClass: AppService,
-  }],
+  providers: [
+    {
+      provide: Service.App,
+      useClass: AppService,
+    },
+  ],
 })
-export class AppModule {
-}
+export class AppModule {}

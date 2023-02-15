@@ -9,6 +9,7 @@ enum Service {
   Auth = 'Auth',
   JWT = 'JWT',
   Token = 'Token',
+  Telegram = 'Telegram',
 }
 
-export { Service };
+export {Service};

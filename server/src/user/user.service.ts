@@ -6,11 +6,13 @@ import {IRoleService} from "../role/role.service";
 import {get} from "lodash";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {IRoleMappingService} from "../role-mapping/role-mapping.service";
+import {CommonUtilsService} from "@utils/common-utils";
 
 export interface IUserService extends IBaseService<User> {
   getMasters: () => Promise<{rows: User[]}>,
   createCustomer: (user: CreateUserDto) => Promise<User>,
   checkIfExist: (phone: string) => Promise<boolean>,
+  updateTelegramChatId: (id: number, chatId: string | number) => Promise<User>,
 }
 
 @Injectable()
@@ -38,8 +40,11 @@ export class UserService extends BaseService<User>(User) implements IUserService
   }
   
   async createCustomer(userDto: CreateUserDto): Promise<User> {
+    const {name, phone} = userDto;
+    const updatedPhone = CommonUtilsService.transformPhone(phone);
+    
     try {
-      const user = await this.create(userDto);
+      const user = await this.create({name, phone: updatedPhone});
       const role = await this.roleService.getRoleByName(HighestRole.Customer);
   
       await this.roleMappingService.create({roleId: role.id, userId: user.id});
@@ -59,5 +64,11 @@ export class UserService extends BaseService<User>(User) implements IUserService
     } catch (e) {
       throw new BadRequestException();
     }
+  }
+  
+  async updateTelegramChatId(id: number, chatId: string) {
+    const [, user] = await this.update({telegramChatId: chatId}, {where: {id}});
+    
+    return user[0];
   }
 }

@@ -3,6 +3,7 @@ export interface ICommonUtilsService {
 }
 export declare class CommonUtilsService implements ICommonUtilsService {
     static isLocalEnvironment(environment: string): boolean;
+    static transformPhone(phone: string): string;
     static concatIdWithOptions<T extends Filterable>(id: Identifier, { where, ...rest }: T): T;
     static isEmptyObject(obj?: object): boolean;
     static compareTwoValues(firstValue: unknown, secondValue: unknown): boolean;

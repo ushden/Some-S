@@ -11,7 +11,9 @@
       "@interceptors": ["src/common/interceptors"],
       "@interfaces": ["src/common/interfaces"],
       "@types": ["src/common/types"],
-      "@utils/*": ["src/common/utils/*"]
+      "@utils/*": ["src/common/utils/*"],
+      "@middlewares/*": ["src/common/middlewares"],
+      "@pipes": ["src/common/pipes"],
     }
   }
 }

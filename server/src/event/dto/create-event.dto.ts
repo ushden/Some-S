@@ -5,4 +5,6 @@ export class CreateEventDto {
   readonly status: string
   readonly customerId: number
   readonly masterId: number
+  readonly leadTime: number
+  readonly price: number
 }

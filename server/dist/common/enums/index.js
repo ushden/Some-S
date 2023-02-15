@@ -22,4 +22,5 @@ __exportStar(require("./casl"), exports);
 __exportStar(require("./query"), exports);
 __exportStar(require("./role"), exports);
 __exportStar(require("./event"), exports);
+__exportStar(require("./telegram"), exports);
 //# sourceMappingURL=index.js.map

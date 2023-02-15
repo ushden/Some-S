@@ -3,6 +3,8 @@ import {EventInput} from '@fullcalendar/core';
 import {Dayjs} from 'dayjs';
 import {DateTime} from 'luxon';
 import {get} from 'lodash';
+import {Translate} from "react-admin";
+
 import {eventStatusApprove, eventStatusDone, eventStatusWaiting, userRoleAdmin} from '../constants';
 
 const isDateBetweenTwoDates = (start: number | string, end: number | string, date: number | string) =>
@@ -25,7 +27,7 @@ const getEventColors = (status: string, background: boolean): string | undefined
   }
 };
 
-const isEventEditable = (roles: Array<string>, userId: number, masterId: number, customerId: number) => {
+const isEventEditable = (userId: number, masterId: number, customerId: number) => {
   if (!userId) {
     return false;
   }
@@ -37,22 +39,22 @@ const parseEvents = (events: IEvent[], currentUser: ICurrentUser): EventInput[] 
   const {roles = [], userId} = currentUser;
   const isAdmin = roles.includes(userRoleAdmin);
   
-  return events.map((event, i) => {
+  return events.map(event => {
     const {id, start, end, status, masterId, customerId, master, customer, services, price, created} = event;
 
     return {
       id,
       title: customer?.name,
       allDay: false,
-      editable: isAdmin || isEventEditable(roles, userId, masterId, customerId),
+      editable: isAdmin || isEventEditable(userId, masterId, customerId),
       interactive: isAdmin,
       start: Number(start),
       end: Number(end),
-      backgroundColor: getEventColors(status, isAdmin || isEventEditable(roles, userId, masterId, customerId)),
-      borderColor: getEventColors(status, isAdmin || isEventEditable(roles, userId, masterId, customerId)),
+      backgroundColor: getEventColors(status, isAdmin || isEventEditable(userId, masterId, customerId)),
+      borderColor: getEventColors(status, isAdmin || isEventEditable(userId, masterId, customerId)),
       className: 'custom-event',
       textColor: 'rgba(0, 0, 0, 0.6)',
-      display: isEventEditable(roles, userId, masterId, customerId) ? 'auto' : 'background',
+      display: isAdmin || isEventEditable(userId, masterId, customerId) ? 'auto' : 'background',
       extendedProps: {
         masterName: master?.name,
         customerName: customer?.name,
@@ -130,23 +132,33 @@ const getTimeSlots = (date: Dayjs, events: EventInput[], masterId: string, total
   return timeSlots;
 };
 
-const validateEvent = (event: ICreateEvent): string | undefined => {
-  const {date, time, services, master} = event;
+const validateEvent = (event: ICreateEvent, translate: Translate): string | undefined => {
+  const {date, time, services, master, phone, name, permissions, isNewCustomer} = event;
+  console.log(name)
+  const isAdmin = Array.isArray(permissions) && permissions?.includes(userRoleAdmin);
+  
+  if (isAdmin && !phone) {
+    return translate('events.errors.empty_phone');
+  }
+  
+  if (isAdmin && isNewCustomer && !name) {
+    return translate('events.errors.empty_name');
+  }
 
   if (!date) {
-    return 'Виберіть, будь ласка, дату запису';
+    return translate('events.errors.empty_date');
   }
 
   if (!master) {
-    return 'Виберіть, будь ласка, майстра';
+    return translate('events.errors.empty_master');
   }
 
   if (!services.length) {
-    return 'Виберіть, будь ласка, послуги';
+    return translate('events.errors.empty_services');
   }
 
   if (!time) {
-    return 'Виберіть, будь ласка, час запису';
+    return translate('events.errors.empty_time');
   }
 };
 

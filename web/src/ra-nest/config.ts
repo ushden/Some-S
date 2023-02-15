@@ -5,9 +5,11 @@ interface Socket {
 interface IConfig {
   app: {name: string}
   server: {local: string, prod: string}
+  web: {local: string, prod: string}
   socket: {local: Socket, prod: Socket}
   api(): string
   socketApi(): Socket
+  webUrl(): string
 }
 
 export const config: IConfig = {
@@ -17,6 +19,10 @@ export const config: IConfig = {
   server: {
     local: 'http://localhost:4848/backend/api/v1',
     prod: ''
+  },
+  web: {
+    local: 'http://localhost:4008',
+    prod: '',
   },
   socket: {
     local: {url: 'http://localhost:4848', path: '/sockets'},
@@ -36,4 +42,7 @@ export const config: IConfig = {
 
     return this.socket.local;
   },
+  webUrl() {
+    return this.web.local;
+  }
 };

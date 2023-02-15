@@ -6,3 +6,4 @@ export * from './casl';
 export * from './query';
 export * from './role';
 export * from './event';
+export * from './telegram';

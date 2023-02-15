@@ -41,6 +41,9 @@ export class User extends Model<User> {
 
   @Column({allowNull: true, defaultValue: {}, type: DataType.JSON})
   meta: object
+  
+  @Column({allowNull: true, type: DataType.STRING, unique: true})
+  telegramChatId: string
 
   @BelongsToMany(() => Role, () => RoleMapping)
   roles: Role[]

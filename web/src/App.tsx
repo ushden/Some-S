@@ -35,6 +35,7 @@ function App() {
         dashboard={Dashboard}
         theme={theme}
         dataProvider={decoratedDataProvider as LegacyDataProvider}
+        // @ts-ignore
         authProvider={authProvider}
         layout={Layout}
         history={history}

@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {LegacyDataProvider, useDataProvider, useGetIdentity, useNotify, usePermissions} from 'react-admin';
+import React, {ChangeEvent, useCallback, useEffect, useMemo, useState} from 'react';
+import {LegacyDataProvider, Translate, useNotify, usePermissions, useTranslate} from 'react-admin';
 import dayjs, {Dayjs} from 'dayjs';
 import {EventInput} from '@fullcalendar/core';
 import IconButton from '@mui/material/IconButton';
@@ -9,6 +9,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -32,14 +34,17 @@ import {DateTime} from 'luxon';
 import {getTimeSlots, parseCombinedValue, validateEvent} from '../utils';
 import {createEvent, fetchMaters, fetchServices} from '../functions';
 import {IEvent, IService} from '../interfaces';
-import {eventStatusWaiting} from '../constants';
-import {setEventType} from '../context/types';
-import {setEventAction, toggleLoginModalAction} from "../context/actions";
-import {useLoginDispatch} from "../context/loginContext";
+import {eventStatusWaiting, userRoleAdmin, userRoleMaster} from '../constants';
+import {setEventAction, toggleLoginModalAction} from '../context/actions';
+import {useLoginDispatch} from '../context/loginContext';
 
 import classes from '../calendar/calendar.module.css';
-import {useCurrentUser} from "../hooks/useCurrentUser";
-import {useEventDispatch} from "../context/eventContext";
+import {useCurrentUser} from '../hooks/useCurrentUser';
+import {useEventDispatch} from '../context/eventContext';
+import InputAdornment from '@mui/material/InputAdornment';
+import {createCustomer} from '../functions/createCustomer';
+import {useCustomDataProvider} from '../hooks/useDataProvider';
+import {checkIfUserExist} from '../functions/checkIfUserExist';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -172,13 +177,14 @@ const renderAvailableTimes = (
   onChange: (t: number) => void,
   chosenServices: Array<string>,
   master: string,
+  translate: Translate,
 ) => {
-  if (!timeSlots.length) {
+  if (!timeSlots.length && (!chosenServices || !chosenServices.length) && !time && !master) {
     return null;
   }
-  
+
   if (chosenServices && chosenServices.length && time && master && !timeSlots.length) {
-    return <p>Немає вільного часу для запису. Спробуйте вибрати іншу дату, майстра аюо послуги</p>
+    return <p>{translate('events.not_available_time')}</p>;
   }
 
   return (
@@ -200,8 +206,9 @@ const renderAvailableTimes = (
 };
 
 export const EventModal = ({open, onClose, events}: IEventModal) => {
-  const dataProvider = useDataProvider();
+  const dataProvider = useCustomDataProvider();
   const notify = useNotify();
+  const translate = useTranslate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const {permissions} = usePermissions();
@@ -218,6 +225,9 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
   const [date, setDate] = useState<Dayjs>(dayjs());
   const [time, setTime] = useState<number | null>(null);
   const [timeSlots, setTimeSlots] = useState<{display: string; start: number; end: number}[]>([]);
+  const [phone, setPhone] = useState('');
+  const [name, setName] = useState('');
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
 
   const {totalPrice, totalLeadTime} = useMemo(() => {
     return chosenServices.reduce(
@@ -233,6 +243,25 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     );
   }, [chosenServices]);
 
+  useEffect(() => {
+    setLoading(true);
+
+    (async () => {
+      const masters = await fetchMaters(dataProvider);
+      const services = await fetchServices(dataProvider);
+
+      setMasters(masters);
+      setServices(services);
+      setLoading(false);
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (master && date && totalLeadTime) {
+      setTimeSlots(getTimeSlots(date, events, master, totalLeadTime));
+    }
+  }, [master, events, date, totalLeadTime]);
+
   const handleEventCreate = async () => {
     const services = chosenServices.map(s => {
       const [id, name, price, leadTime] = parseCombinedValue(s);
@@ -244,7 +273,19 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
         leadTime: +leadTime,
       };
     });
-    const error = validateEvent({time, master, services: chosenServices, date});
+    const error = validateEvent(
+      {
+        time,
+        master,
+        services: chosenServices,
+        date,
+        phone,
+        name,
+        permissions,
+        isNewCustomer,
+      },
+      translate,
+    );
 
     if (error) {
       setError(error);
@@ -263,19 +304,34 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
       status: eventStatusWaiting,
       customerId: currentUser?.userId,
       price: totalPrice,
+      leadTime: totalLeadTime,
     };
-    
+
     if (!permissions.length || !currentUser) {
       updateEventState(setEventAction(data));
       updateLoginState(toggleLoginModalAction());
       onClose();
-      
+
       return;
     }
-    
-    try {
-      await createEvent((dataProvider as unknown) as LegacyDataProvider, data, notify, updateEventState);
+
+    const isExist = await checkIfUserExist(dataProvider, phone);
+
+    if (Array.isArray(permissions) && permissions.includes(userRoleAdmin) && !isExist) {
+      setError(translate('events.errors.user_not_exist'));
+
+      return;
+    }
+
+    if (Array.isArray(permissions) && permissions.includes(userRoleAdmin)) {
+      const customer = await createCustomer(name, phone, dataProvider);
       
+      data.customerId = +customer.id;
+    }
+
+    try {
+      await createEvent(dataProvider, data, notify, updateEventState);
+
       onClose();
     } catch (e) {
       console.error(e);
@@ -288,7 +344,7 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     if (error) {
       setError('');
     }
-    
+
     if (time) {
       setTime(null);
     }
@@ -303,7 +359,7 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     if (error) {
       setError('');
     }
-  
+
     if (time) {
       setTime(null);
     }
@@ -315,7 +371,7 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     if (error) {
       setError('');
     }
-  
+
     if (time) {
       setTime(null);
     }
@@ -329,29 +385,26 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     }
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
+  const handleNumberChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setPhone(event.target.value);
+  };
 
-    (async () => {
-      const masters = await fetchMaters((dataProvider as unknown) as LegacyDataProvider);
-      const services = await fetchServices((dataProvider as unknown) as LegacyDataProvider);
-
-      setMasters(masters);
-      setServices(services);
-      setLoading(false);
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (master && date && totalLeadTime) {
-      setTimeSlots(getTimeSlots(date, events, master, totalLeadTime));
+  const handleNameChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (error) {
+      setError('');
     }
-  }, [master, events, date, totalLeadTime]);
+
+    setName(event.target.value);
+  };
+
+  const handleIsNewCustomer = (event: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    setIsNewCustomer(checked);
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullScreen={isMobile} TransitionComponent={Transition} keepMounted>
       <DialogTitle sx={{m: 0, p: 2}}>
-        Зробити запис
+        {translate('events.create_event')}
         <IconButton
           aria-label='close'
           onClick={onClose}
@@ -366,7 +419,43 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
         </IconButton>
       </DialogTitle>
       <DialogContent dividers>
-        <DialogContentText>Виберіть зручний для Вас час, мастера та послуги</DialogContentText>
+        <DialogContentText>
+          {permissions.includes(userRoleAdmin) || permissions.includes(userRoleMaster)
+            ? translate('events.modal_admin_create_content_text')
+            : translate('events.modal_create_content_text')}
+        </DialogContentText>
+        {(permissions.includes(userRoleAdmin) || permissions.includes(userRoleMaster)) && (
+          <Box>
+            <FormControl variant='outlined' sx={{width: '100%'}}>
+              <TextField
+                label={translate('users.fields.phone')}
+                value={phone}
+                onChange={handleNumberChange}
+                InputProps={{
+                  startAdornment: <InputAdornment position='start'>+38</InputAdornment>,
+                }}
+                type='number'
+                variant='outlined'
+                required
+                sx={{width: '100%'}}
+              />
+              {isNewCustomer && (
+                <TextField
+                  label={translate('users.fields.name')}
+                  variant='outlined'
+                  value={name}
+                  onChange={handleNameChange}
+                  required
+                  sx={{mb: '1rem', width: '100%'}}
+                />
+              )}
+              <FormControlLabel
+                control={<Checkbox value={isNewCustomer} onChange={handleIsNewCustomer} />}
+                label='Це новий клієнт'
+              />
+            </FormControl>
+          </Box>
+        )}
         <DatePicker
           disablePast
           label='Дата запису'
@@ -390,18 +479,18 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
           service: chosenServices,
           onChange: handleChosenServices,
         })}
-        {renderAvailableTimes(timeSlots, time, handleTimeChange, chosenServices, master)}
+        {renderAvailableTimes(timeSlots, time, handleTimeChange, chosenServices, master, translate)}
         <p className={classes.totalPrice}>
-          Загальна вартість: {totalPrice} грн. <br/> Потрібно часу: {totalLeadTime} хв.
+          Загальна вартість: {totalPrice} грн. <br /> Потрібно часу: {totalLeadTime} хв.
         </p>
         {error && <p>{error}</p>}
       </DialogContent>
       <DialogActions>
-        <Button color='secondary' onClick={onClose as () => {}}>
-          Закрити
+        <Button color='secondary' onClick={onClose as () => {}} size='small'>
+          {translate('events.buttons.close')}
         </Button>
-        <Button variant='contained' color='success' onClick={handleEventCreate}>
-          Створити
+        <Button variant='contained' color='success' onClick={handleEventCreate} size='small'>
+          {translate('events.buttons.create')}
         </Button>
       </DialogActions>
     </Dialog>

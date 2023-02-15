@@ -9,6 +9,7 @@ export interface IUserService extends IBaseService<User> {
     }>;
     createCustomer: (user: CreateUserDto) => Promise<User>;
     checkIfExist: (phone: string) => Promise<boolean>;
+    updateTelegramChatId: (id: number, chatId: string | number) => Promise<User>;
 }
 declare const UserService_base: import("@nestjs/common").Type<IBaseService<User>>;
 export declare class UserService extends UserService_base implements IUserService {
@@ -20,5 +21,6 @@ export declare class UserService extends UserService_base implements IUserServic
     }>;
     createCustomer(userDto: CreateUserDto): Promise<User>;
     checkIfExist(phone: string): Promise<boolean>;
+    updateTelegramChatId(id: number, chatId: string): Promise<User>;
 }
 export {};
