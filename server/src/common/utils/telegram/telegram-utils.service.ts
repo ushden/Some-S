@@ -1,12 +1,8 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {DateTime} from 'luxon';
 
 import {Event} from '../../../event/entities/event.entity';
-import {MessageTypesForAdmin, MessageTypesForUser, Service, StatusMapping} from '@enums';
-import {IUserService} from '../../../user/user.service';
-import {InjectBot} from 'nestjs-telegraf';
-import {Telegraf} from 'telegraf';
-import {ITelegrafContext} from '@interfaces';
+import {MessageTypesForAdmin, MessageTypesForUser, StatusMapping} from '@enums';
 
 export interface ITelegramUtilsService {}
 
@@ -23,7 +19,7 @@ export class TelegramUtilsService implements ITelegramUtilsService {
     return eventId || null;
   }
 
-  public static generateHtmlEventForAdmin(event: Event): string {
+  public static generateHtmlEventForAdmin(event: Event, type: MessageTypesForAdmin): string {
     const services = event.services.map(({name}) => `\n<i>🈯${name}</i>`).join('');
     const time = `<b>${DateTime.fromMillis(+event.start).toFormat('HH:mm')} - ${DateTime.fromMillis(
       +event.end,
@@ -32,14 +28,20 @@ export class TelegramUtilsService implements ITelegramUtilsService {
     const master = `<b>Майстер - ${event.master.name}</b>`;
     const price = `<i>💳Вартість</i> - <b>${event.price}</b> грн.`;
     const leadTime = `<i>⏳Потрібно часу</i> - ${event.leadTime} хв.`;
-
-    return `
+    
+    if (type === MessageTypesForAdmin.events) {
+      return `
 			${time}\n<i>🌟Статус запису - ${
-      StatusMapping[event.status]
-    }</i>\n\n${customer}\n${master}\n${services}\n\n${price}\n${leadTime}
+        StatusMapping[event.status]
+      }</i>\n\n${customer}\n${master}\n${services}\n\n${price}\n${leadTime}
 			\n
 			Тут нужно подумать как красиво сделать. KEK
 		`;
+    }
+    
+    if (type === MessageTypesForAdmin.confirmBeforeDelete) {
+      return `Ви впевненні, що хочете скасувати запис? Клієнт отримае повідомлення про відміну`;
+    }
   }
 
   public static generateHtmlMessageForUser(event: Event, type: MessageTypesForUser): string {
@@ -52,6 +54,14 @@ export class TelegramUtilsService implements ITelegramUtilsService {
 
     if (type === MessageTypesForUser.eventApprove) {
       return `Ваш запис на <i>${date}</i> підтвержено. Послуги:\n${services} Обновить сообщение, что-то добавить, подумать`;
+    }
+    
+    if (type === MessageTypesForUser.waitingApprove) {
+      return `Ваш запис на <i>${date}</i> надіслано на підтвердження. Вас буде повідомленно про зміну статусу. КЕЕЕК`;
+    }
+    
+    if (type === MessageTypesForUser.eventReject) {
+      return `Запис скасовано адміністратором. Вже сил немає, потом придумаю.........`;
     }
   }
 }

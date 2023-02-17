@@ -1,3 +1,3 @@
-export declare const AllowedQuery: (...dataOrPipes: (import("@nestjs/common").PipeTransform<any, any> | {
+export declare const AllowedQuery: (...dataOrPipes: ({
     source: import("../../enums/query").RequestQuerySource;
-} | import("@nestjs/common").Type<import("@nestjs/common").PipeTransform<any, any>>)[]) => ParameterDecorator;
+} | import("@nestjs/common").PipeTransform<any, any> | import("@nestjs/common").Type<import("@nestjs/common").PipeTransform<any, any>>)[]) => ParameterDecorator;

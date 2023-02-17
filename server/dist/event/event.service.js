@@ -30,7 +30,7 @@ let EventService = class EventService extends (0, base_service_1.BaseService)(ev
             const master = await this.userService.findById(event.masterId);
             event.customer = customer;
             event.master = master;
-            await this.notificationService.sendTelegramMessageForAdmin(_enums_1.MessageTypesForAdmin.newEvent, event);
+            await this.notificationService.sendTelegramMessageForAdmin(_enums_1.MessageTypesForAdmin.events, event);
             await this.notificationService.sendTelegramMessageForUser(_enums_1.MessageTypesForUser.waitingApprove, event, customer.telegramChatId);
             return event;
         }

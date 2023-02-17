@@ -28,7 +28,7 @@ export class EventService extends BaseService<Event>(Event) implements IEventSer
       event.customer = customer;
       event.master = master;
 
-      await this.notificationService.sendTelegramMessageForAdmin(MessageTypesForAdmin.newEvent, event);
+      await this.notificationService.sendTelegramMessageForAdmin(MessageTypesForAdmin.events, event);
       await this.notificationService.sendTelegramMessageForUser(
         MessageTypesForUser.waitingApprove,
         event,

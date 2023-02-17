@@ -9,6 +9,7 @@ declare enum Service {
     Auth = "Auth",
     JWT = "JWT",
     Token = "Token",
-    Telegram = "Telegram"
+    Telegram = "Telegram",
+    Notification = "Notification"
 }
 export { Service };

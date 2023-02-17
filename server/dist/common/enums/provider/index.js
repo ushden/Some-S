@@ -14,6 +14,7 @@ var Service;
     Service["JWT"] = "JWT";
     Service["Token"] = "Token";
     Service["Telegram"] = "Telegram";
+    Service["Notification"] = "Notification";
 })(Service || (Service = {}));
 exports.Service = Service;
 //# sourceMappingURL=index.js.map

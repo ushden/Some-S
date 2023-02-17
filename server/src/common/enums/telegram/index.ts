@@ -11,7 +11,8 @@ enum MessageTypesForUser {
 }
 
 enum MessageTypesForAdmin {
-	newEvent = 'newEvent',
+	events = 'events',
+	confirmBeforeDelete = 'confirmDeleting'
 }
 
 export {

@@ -27,11 +27,11 @@ export class NotificationService implements INotificationService {
     try {
       const admins = await this.userService.getAdmins();
       const chatIds = admins.map(admin => admin.telegramChatId);
-      const message = TelegramUtilsService.generateHtmlEventForAdmin(event);
+      const message = TelegramUtilsService.generateHtmlEventForAdmin(event, type);
 
       for (const chatId of chatIds) {
-        if (type === MessageTypesForAdmin.newEvent) {
-          await this.telegramBot.telegram.sendMessage(chatId, '😻 Новий запис, потрібне підтвердження');
+        if (type === MessageTypesForAdmin.events) {
+          await this.telegramBot.telegram.sendMessage(chatId, '😻 Новий запис, потрібне підтвердження ⬇⬇⬇');
           await this.telegramBot.telegram.sendMessage(chatId, message, {
             parse_mode: 'HTML',
             reply_markup: {

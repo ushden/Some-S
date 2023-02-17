@@ -4,17 +4,18 @@ import {Telegraf} from 'telegraf';
 import {DateTime} from 'luxon';
 import {Op} from 'sequelize';
 import {ITelegrafContext} from '@interfaces';
-import {HighestRole, MessageTypesForAdmin, MessageTypesForUser, Service, Status} from '@enums';
+import {HighestRole, Service, Status} from '@enums';
 
 import {Event} from '../event/entities/event.entity';
 import {IUserService} from '../user/user.service';
 import {IEventService} from '../event/event.service';
-import {TelegramUtilsService} from '@utils/telegram';
+import {WINSTON_MODULE_PROVIDER} from "nest-winston";
+import {Logger} from "winston";
 
 interface IDeleteEventResponse {
   permissionDenied?: boolean;
-  success?: boolean;
   notFound?: boolean;
+  event?: Event;
 }
 
 interface IApproveEventResponse {
@@ -32,7 +33,8 @@ export interface ITelegramService {
   getContact: (phone: string, chatId: number, name: string) => Promise<string[]>;
   getEventsToday: (chatId: number) => Promise<IGetEvents>;
   approveEvent: (eventId: number, chatId: number) => Promise<IApproveEventResponse>;
-  deleteEvent: (eventId: number, chatId: number) => Promise<IDeleteEventResponse>;
+  deleteEvent: (eventId: number) => Promise<Event>;
+  checkEventBeforeDelete: (eventId: number, chatId: number) => Promise<IDeleteEventResponse>;
 }
 
 @Injectable()
@@ -41,6 +43,7 @@ export class TelegramService implements ITelegramService {
     @InjectBot() private readonly bot: Telegraf<ITelegrafContext>,
     @Inject(Service.Users) private readonly userService: IUserService,
     @Inject(Service.Events) private readonly eventService: IEventService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}
 
   private async checkAdminPermission(chatId: string) {
@@ -93,7 +96,7 @@ export class TelegramService implements ITelegramService {
     }
   }
   
-  public async deleteEvent(eventId: number, chatId: number): Promise<IDeleteEventResponse> {
+  public async checkEventBeforeDelete(eventId: number, chatId: number): Promise<IDeleteEventResponse> {
     try {
       const isAvailable = await this.checkAdminPermission(chatId.toString());
   
@@ -101,16 +104,28 @@ export class TelegramService implements ITelegramService {
         return {permissionDenied: true};
       }
   
-      const event = await this.eventService.findById(eventId);
+      const event = await this.eventService.findById(eventId, {include: ['master', 'customer']});
   
       if (!event) {
         return {notFound: true};
       }
       
+      return {event};
+    } catch (e) {
+      this.logger.error(`TSCEBD001: Error when try check event before delete: Error: ${e.message}`);
+      throw new BadRequestException(e.message);
+    }
+  }
+  
+  public async deleteEvent(eventId: number): Promise<Event> {
+    try {
+      const event = await this.eventService.findById(eventId, {include: [{all: true}]});
+      
       await this.eventService.delete({where: {id: eventId}});
       
-      return {success: true};
+      return event;
     } catch (e) {
+      this.logger.error(`TUDE001: Error when try delete event. Error: ${e.message}`);
       throw new BadRequestException(e.message);
     }
   }

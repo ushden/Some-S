@@ -1,5 +1,5 @@
 import {Markup} from "telegraf";
-import {Status} from "@enums";
+import {MessageTypesForAdmin, Status} from "@enums";
 
 export const getContactButton = () => {
 	return Markup.keyboard([
@@ -42,4 +42,21 @@ export const eventAdminButtons = (eventId: number) => {
 		[{text: '✅ Підтвердити запис', callback_data: `approve-event-${eventId}`}],
 		[{text: '🧨 Скасувати запис', callback_data: `delete-event-${eventId}`}],
 	];
-}
+};
+
+export const eventTelegrafConfirmButton = (eventId: number) => {
+	return Markup.inlineKeyboard([
+		Markup.button.callback('✅ Так', `confirm-removing-${eventId}`)
+	], {columns: 1});
+};
+
+export const getButtonsForMessage = (type: MessageTypesForAdmin): Function => {
+	switch (type) {
+    case MessageTypesForAdmin.events:
+      return eventTelegrafAdminButtons;
+    case MessageTypesForAdmin.confirmBeforeDelete:
+			return eventTelegrafConfirmButton;
+		default:
+			return () => {};
+  }
+};
