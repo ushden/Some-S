@@ -36,6 +36,7 @@ let GlobalExceptionFilter = class GlobalExceptionFilter {
             { statusCode, message, name } :
             { statusCode, message, name, stack };
         this.logger.error(stack);
+        this.logger.error(Array.isArray(message) ? message.join(', ') : message);
         httpAdapter.reply(ctx.getResponse(), { error }, statusCode);
     }
 };

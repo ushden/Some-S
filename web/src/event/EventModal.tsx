@@ -315,9 +315,8 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
       return;
     }
 
-    const isExist = await checkIfUserExist(dataProvider, phone);
-
-    if (Array.isArray(permissions) && permissions.includes(userRoleAdmin) && !isExist) {
+    if (phone && Array.isArray(permissions) && permissions.includes(userRoleAdmin) &&
+      !await checkIfUserExist(dataProvider, phone)) {
       setError(translate('events.errors.user_not_exist'));
 
       return;
@@ -326,7 +325,13 @@ export const EventModal = ({open, onClose, events}: IEventModal) => {
     if (Array.isArray(permissions) && permissions.includes(userRoleAdmin)) {
       const customer = await createCustomer(name, phone, dataProvider);
       
-      data.customerId = +customer.id;
+      if (!customer) {
+        setError('common.errors.something_went_wrong');
+        
+        return;
+      }
+      
+      data.customerId = +customer?.id;
     }
 
     try {

@@ -7,6 +7,7 @@ import {sessionMiddleware} from "../common/middlewares/telegram/session.middlewa
 import {TelegramService} from "./telegram.service";
 import {Service} from "@enums";
 import {EventModule} from "../event/event.module";
+import {NotificationModule} from "../notification/notification.module";
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import {EventModule} from "../event/event.module";
 		}),
 		UserModule,
 		EventModule,
+		NotificationModule,
 	],
 	providers: [TelegramUpdate, {provide: Service.Telegram, useClass: TelegramService}],
 })

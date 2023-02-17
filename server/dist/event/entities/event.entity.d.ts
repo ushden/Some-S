@@ -1,4 +1,5 @@
 import { Model } from "sequelize-typescript";
+import { Status } from "@enums";
 import { User } from "../../user/entities/user.entity";
 interface IService {
     id: number;
@@ -8,11 +9,12 @@ interface IService {
 }
 export declare class Event extends Model<Event> {
     id: number;
-    status: string;
+    status: Status;
     start: number;
     end: number;
     created: number;
     price: number;
+    leadTime: number;
     services: Array<IService>;
     customerId: number;
     masterId: number;

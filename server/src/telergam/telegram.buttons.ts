@@ -1,5 +1,5 @@
 import {Markup} from "telegraf";
-import {Resource, Status} from "@enums";
+import {Status} from "@enums";
 
 export const getContactButton = () => {
 	return Markup.keyboard([
@@ -22,7 +22,7 @@ export const mainAdminMenu = () => {
 	], {columns: 2}).resize();
 };
 
-export const eventAdminButtons = (eventId, status) => {
+export const eventTelegrafAdminButtons = (eventId: number, status: Status) => {
 	if (status === Status.waiting) {
 		return Markup.inlineKeyboard([
 			// Markup.button.url('👀 Деталі', `${process.env.WEB_URL}/${Resource.Event}/${eventId}`),
@@ -36,3 +36,10 @@ export const eventAdminButtons = (eventId, status) => {
 		Markup.button.callback('🧨 Скасувати запис', `delete-event-${eventId}`)
 	], {columns: 1});
 };
+
+export const eventAdminButtons = (eventId: number) => {
+	return [
+		[{text: '✅ Підтвердити запис', callback_data: `approve-event-${eventId}`}],
+		[{text: '🧨 Скасувати запис', callback_data: `delete-event-${eventId}`}],
+	];
+}

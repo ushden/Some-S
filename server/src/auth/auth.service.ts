@@ -8,6 +8,7 @@ import {User} from '../user/entities/user.entity';
 import {tokenTtlMilliseconds} from "@constants";
 import {IAccessTokenService} from "../access-token/access-token.service";
 import {CreateAccessTokenDto} from "../access-token/dto/create-access-token.dto";
+import {CommonUtilsService} from "@utils/common-utils";
 
 export interface IAuthService {
   login: (user: CreateUserDto) => Promise<IToken>;
@@ -21,6 +22,8 @@ export class AuthService implements IAuthService {
 		@Inject(Service.Token) private readonly accessTokenService: IAccessTokenService,
 	) {}
 	async login(userDto: CreateUserDto): Promise<IToken> {
+		userDto.phone = CommonUtilsService.transformPhone(userDto.phone);
+		
 		try {
 			const candidate = await this.userService.findOne({
 				where: {phone: userDto.phone},

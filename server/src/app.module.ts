@@ -17,6 +17,7 @@ import {ServiceModule} from './service/service.module';
 import {AuthModule} from './auth/auth.module';
 import {AccessTokenModule} from './access-token/access-token.module';
 import {TelegramModule} from './telergam/telegram.module';
+import {NotificationModule} from "./notification/notification.module";
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import {TelegramModule} from './telergam/telegram.module';
     AuthModule,
     AccessTokenModule,
     TelegramModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [

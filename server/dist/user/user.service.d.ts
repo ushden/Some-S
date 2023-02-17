@@ -7,6 +7,7 @@ export interface IUserService extends IBaseService<User> {
     getMasters: () => Promise<{
         rows: User[];
     }>;
+    getAdmins: () => Promise<User[]>;
     createCustomer: (user: CreateUserDto) => Promise<User>;
     checkIfExist: (phone: string) => Promise<boolean>;
     updateTelegramChatId: (id: number, chatId: string | number) => Promise<User>;
@@ -16,6 +17,7 @@ export declare class UserService extends UserService_base implements IUserServic
     private readonly roleService;
     private readonly roleMappingService;
     constructor(roleService: IRoleService, roleMappingService: IRoleMappingService);
+    getAdmins(): Promise<any[] | User[]>;
     getMasters(): Promise<{
         rows: any[] | User[];
     }>;

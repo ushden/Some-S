@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const _enums_1 = require("../common/enums");
 const jwt_1 = require("@nestjs/jwt");
 const _constants_1 = require("../common/constants");
+const common_utils_1 = require("../common/utils/common-utils");
 let AuthService = class AuthService {
     constructor(jwtService, userService, accessTokenService) {
         this.jwtService = jwtService;
@@ -24,6 +25,7 @@ let AuthService = class AuthService {
         this.accessTokenService = accessTokenService;
     }
     async login(userDto) {
+        userDto.phone = common_utils_1.CommonUtilsService.transformPhone(userDto.phone);
         try {
             const candidate = await this.userService.findOne({
                 where: { phone: userDto.phone },

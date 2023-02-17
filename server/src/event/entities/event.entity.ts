@@ -1,5 +1,5 @@
 import {BelongsTo, Column, DataType, ForeignKey, Model, Table as SeqTable} from "sequelize-typescript";
-import {Table} from "@enums";
+import {Status, Table} from "@enums";
 import {User} from "../../user/entities/user.entity";
 
 interface IService {
@@ -15,7 +15,7 @@ export class Event extends Model<Event> {
   id: number
 
   @Column({type: DataType.STRING, allowNull: false})
-  status: string
+  status: Status
 
   @Column({type: DataType.BIGINT, allowNull: false})
   start: number

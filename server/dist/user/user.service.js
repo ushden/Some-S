@@ -25,6 +25,18 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
         this.roleService = roleService;
         this.roleMappingService = roleMappingService;
     }
+    async getAdmins() {
+        try {
+            const roles = await this.roleService.find({
+                where: { name: _enums_1.HighestRole.Admin },
+                include: ['users'],
+            });
+            return (0, lodash_1.get)(roles[0], 'users', []);
+        }
+        catch (e) {
+            throw new common_1.BadRequestException(e.message);
+        }
+    }
     async getMasters() {
         try {
             const roles = await this.roleService.find({
@@ -36,7 +48,7 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
             };
         }
         catch (e) {
-            throw new common_1.BadRequestException();
+            throw new common_1.BadRequestException(e.message);
         }
     }
     async createCustomer(userDto) {
@@ -54,8 +66,9 @@ let UserService = class UserService extends (0, base_service_1.BaseService)(user
         }
     }
     async checkIfExist(phone) {
+        const updatedPhone = common_utils_1.CommonUtilsService.transformPhone(phone);
         try {
-            const count = await this.count({ where: { phone } });
+            const count = await this.count({ where: { phone: updatedPhone } });
             return !!count;
         }
         catch (e) {

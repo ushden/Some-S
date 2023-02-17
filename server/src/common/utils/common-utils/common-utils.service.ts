@@ -14,7 +14,7 @@ export class CommonUtilsService implements ICommonUtilsService {
   
   public static transformPhone(phone: string) {
     if (phone.length === 10) {
-      phone = `+380${phone}`;
+      phone = `+38${phone}`;
     }
   
     if (phone.length === 13 && phone.startsWith('380')) {

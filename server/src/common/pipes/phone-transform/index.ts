@@ -8,7 +8,7 @@ export class PhoneTransform implements PipeTransform<string, string> {
 		}
 		
 		if (value.length === 10) {
-			value = `+380${value}`;
+			value = `+38${value}`;
 		}
 		
 		if (value.length === 13 && value.startsWith('380')) {

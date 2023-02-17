@@ -29,7 +29,7 @@ let CommonUtilsService = CommonUtilsService_1 = class CommonUtilsService {
     }
     static transformPhone(phone) {
         if (phone.length === 10) {
-            phone = `+380${phone}`;
+            phone = `+38${phone}`;
         }
         if (phone.length === 13 && phone.startsWith('380')) {
             phone = `+${phone}`;

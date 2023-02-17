@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Inject, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Inject, Post, Query, UsePipes} from '@nestjs/common';
 import {IUserService} from './user.service';
 import {Resource, Service} from "@enums";
 import {BaseController} from "../base/base.controller";
@@ -18,7 +18,8 @@ export class UserController extends BaseController<User>(User, Service.Users) {
   }
   
   @Get('check-exist')
-  private checkIfExist(@Query('phone', new PhoneTransform()) phone: string) {
+  @UsePipes(PhoneTransform)
+  private checkIfExist(@Query('phone') phone: string) {
     return this.usersService.checkIfExist(phone);
   }
   

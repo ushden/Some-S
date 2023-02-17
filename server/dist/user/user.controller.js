@@ -46,8 +46,9 @@ __decorate([
 __decorate([
     openapi.ApiOperation({ description: "" }),
     (0, common_1.Get)('check-exist'),
+    (0, common_1.UsePipes)(_pipes_1.PhoneTransform),
     openapi.ApiResponse({ status: 200, type: Boolean }),
-    __param(0, (0, common_1.Query)('phone', new _pipes_1.PhoneTransform())),
+    __param(0, (0, common_1.Query)('phone')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)

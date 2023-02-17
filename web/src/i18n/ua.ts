@@ -3,6 +3,12 @@ import ukraineMessages from 'ra-language-ukrainian';
 
 export const ua = {
   ...ukraineMessages,
+  common: {
+    ...ukraineMessages.common,
+    errors: {
+      something_went_wrong: 'Щось пішло не так, зверніться до адміністраціі'
+    }
+  },
   calendar: {
     today: 'Сьогодні',
     month: 'Місяць',

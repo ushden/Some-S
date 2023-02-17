@@ -2,20 +2,37 @@ import {BadRequestException, Inject, Injectable} from '@nestjs/common';
 import {InjectBot} from 'nestjs-telegraf';
 import {Telegraf} from 'telegraf';
 import {DateTime} from 'luxon';
-import {Op} from "sequelize";
+import {Op} from 'sequelize';
 import {ITelegrafContext} from '@interfaces';
-import {HighestRole, Service} from "@enums";
+import {HighestRole, MessageTypesForAdmin, MessageTypesForUser, Service, Status} from '@enums';
 
-import {eventAdminButtons, getContactButton, mainAdminMenu, mainUserMenu} from "./telegram.buttons";
-import {Event} from "../event/entities/event.entity";
-import {IUserService} from "../user/user.service";
-import {IEventService} from "../event/event.service";
-import {TelegramUtilsService} from "@utils/telegram";
+import {Event} from '../event/entities/event.entity';
+import {IUserService} from '../user/user.service';
+import {IEventService} from '../event/event.service';
+import {TelegramUtilsService} from '@utils/telegram';
+
+interface IDeleteEventResponse {
+  permissionDenied?: boolean;
+  success?: boolean;
+  notFound?: boolean;
+}
+
+interface IApproveEventResponse {
+  alreadyApprove?: boolean;
+  permissionDenied?: boolean;
+  event?: Event | null;
+}
+
+interface IGetEvents {
+  events?: Event[];
+  permissionDenied?: boolean;
+}
 
 export interface ITelegramService {
-  start: (ctx: ITelegrafContext) => Promise<void>;
-  getContact: (ctx: ITelegrafContext, phone: string) => Promise<void>;
-  getEventsToday: (chatId: number, ctx: ITelegrafContext) => Promise<void> | undefined;
+  getContact: (phone: string, chatId: number, name: string) => Promise<string[]>;
+  getEventsToday: (chatId: number) => Promise<IGetEvents>;
+  approveEvent: (eventId: number, chatId: number) => Promise<IApproveEventResponse>;
+  deleteEvent: (eventId: number, chatId: number) => Promise<IDeleteEventResponse>;
 }
 
 @Injectable()
@@ -25,58 +42,44 @@ export class TelegramService implements ITelegramService {
     @Inject(Service.Users) private readonly userService: IUserService,
     @Inject(Service.Events) private readonly eventService: IEventService,
   ) {}
-  
-  private async sendEvent(event: Event, ctx: ITelegrafContext) {
-    const html = TelegramUtilsService.generateHtmlEvent(event);
-    
-    await ctx.replyWithHTML(html, eventAdminButtons(event.id, event.status));
+
+  private async checkAdminPermission(chatId: string) {
+    const user = await this.userService.findOne({
+      where: {telegramChatId: chatId.toString()},
+      include: ['roles'],
+    });
+
+    return !(!user || !user.roles.map(r => r.name).includes(HighestRole.Admin));
   }
 
-  public async start(ctx: ITelegrafContext): Promise<void> {
-    await ctx.reply('Вітаємо, для подальшої роботи, натисніть - "Номер телефону"', getContactButton());
-  }
-  
-  public async getContact(ctx: ITelegrafContext, phone: string): Promise<void> {
-    const chatId: number = ctx.chat.id;
-    const name: string = ctx.message?.from?.first_name;
-  
+  public async getContact(phone: string, chatId: number, name: string): Promise<string[]> {
     let user = await this.userService.findOne({
       where: {phone},
       include: ['roles'],
     });
-  
+
     if (!user) {
       user = await this.userService.createCustomer({name, phone});
     }
-  
+
     await this.userService.updateTelegramChatId(user.id, chatId);
-    
+
     const {roles} = user;
-    const roleNames = roles.map(r => r.name);
-    
-    if (roleNames.includes(HighestRole.Admin)) {
-      await ctx.reply(`Вітання, тестуємо бота. ${name} привіт :)`, mainAdminMenu());
-    } else {
-      await ctx.reply(`Вітаємо, ${name}`, mainUserMenu());
-    }
+
+    return roles.map(r => r.name);
   }
-  
-  public async getEventsToday(chatId: number, ctx: ITelegrafContext) {
+
+  public async getEventsToday(chatId: number): Promise<IGetEvents> {
     try {
-      const user = await this.userService.findOne({
-        where: {telegramChatId: chatId.toString()},
-        include: ['roles']
-      });
-  
-      if (!user || !user.roles.map(r => r.name).includes(HighestRole.Admin)) {
-        await ctx.reply('Вибачте, у Вас немає доступу 😐');
-    
-        return;
+      const isAvailable = await this.checkAdminPermission(chatId.toString());
+
+      if (!isAvailable) {
+        return {permissionDenied: true, events: []};
       }
-  
+
       const startDay = DateTime.now().startOf('day').toMillis();
       const endDay = DateTime.now().endOf('day').toMillis();
-  
+
       const events = await this.eventService.find({
         where: {
           created: {[Op.between]: [startDay, endDay]},
@@ -84,15 +87,56 @@ export class TelegramService implements ITelegramService {
         include: ['customer', 'master'],
       });
       
-      if (!events.length) {
-        await ctx.reply('На сьогодні немає записів 😐');
-        
-        return;
+      return {events};
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+  
+  public async deleteEvent(eventId: number, chatId: number): Promise<IDeleteEventResponse> {
+    try {
+      const isAvailable = await this.checkAdminPermission(chatId.toString());
+  
+      if (!isAvailable) {
+        return {permissionDenied: true};
       }
   
-      for (const event of events) {
-        await this.sendEvent(event, ctx);
+      const event = await this.eventService.findById(eventId);
+  
+      if (!event) {
+        return {notFound: true};
       }
+      
+      await this.eventService.delete({where: {id: eventId}});
+      
+      return {success: true};
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  public async approveEvent(eventId: number, chatId: number): Promise<IApproveEventResponse> {
+    try {
+      const isAvailable = await this.checkAdminPermission(chatId.toString());
+
+      if (!isAvailable) {
+        return {permissionDenied: true};
+      }
+
+      const event = await this.eventService.findById(eventId, {include: ['master', 'customer']});
+
+      if (!event) {
+        return {event: null};
+      }
+      
+      if (event.status === Status.approve) {
+        return {alreadyApprove: true};
+      }
+
+      event.status = Status.approve;
+      await event.save();
+
+      return {event};
     } catch (e) {
       throw new BadRequestException(e.message);
     }

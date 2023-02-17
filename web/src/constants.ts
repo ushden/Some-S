@@ -7,6 +7,7 @@ export const servicesResource = 'services';
 export const getMastersEndpoint = 'get-masters';
 export const checkUserExistEndpoint = 'check-exist';
 export const createCustomerEndpoint = 'create-customer';
+export const createWithNotificationEndpoints = 'create-with-notifications';
 
 export const eventStatusWaiting = 'waiting';
 export const eventStatusApprove = 'approve';

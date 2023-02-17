@@ -10,6 +10,7 @@ import {CommonUtilsService} from "@utils/common-utils";
 
 export interface IUserService extends IBaseService<User> {
   getMasters: () => Promise<{rows: User[]}>,
+  getAdmins: () => Promise<User[]>,
   createCustomer: (user: CreateUserDto) => Promise<User>,
   checkIfExist: (phone: string) => Promise<boolean>,
   updateTelegramChatId: (id: number, chatId: string | number) => Promise<User>,
@@ -23,19 +24,32 @@ export class UserService extends BaseService<User>(User) implements IUserService
   ) {
     super();
   }
+  
+  public async getAdmins() {
+    try {
+      const roles = await this.roleService.find({
+        where: {name: HighestRole.Admin},
+        include: ['users'],
+      });
+      
+      return get(roles[0], 'users', []);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
 
-  async getMasters() {
+  public async getMasters() {
     try {
       const roles = await this.roleService.find({
         where: {name: HighestRole.Master},
         include: ['users'],
-      })
+      });
   
       return {
         rows: get(roles[0], 'users', []),
       };
     } catch (e) {
-      throw new BadRequestException();
+      throw new BadRequestException(e.message);
     }
   }
   
@@ -57,8 +71,10 @@ export class UserService extends BaseService<User>(User) implements IUserService
   }
   
   async checkIfExist(phone: string) {
+    const updatedPhone = CommonUtilsService.transformPhone(phone);
+    
     try {
-      const count = await this.count({where: {phone}});
+      const count = await this.count({where: {phone: updatedPhone}});
       
       return !!count;
     } catch (e) {
@@ -66,7 +82,7 @@ export class UserService extends BaseService<User>(User) implements IUserService
     }
   }
   
-  async updateTelegramChatId(id: number, chatId: string) {
+  public async updateTelegramChatId(id: number, chatId: string) {
     const [, user] = await this.update({telegramChatId: chatId}, {where: {id}});
     
     return user[0];

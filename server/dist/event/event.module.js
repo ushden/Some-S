@@ -14,6 +14,7 @@ const sequelize_1 = require("@nestjs/sequelize");
 const event_entity_1 = require("./entities/event.entity");
 const _enums_1 = require("../common/enums");
 const user_module_1 = require("../user/user.module");
+const notification_module_1 = require("../notification/notification.module");
 let EventModule = class EventModule {
 };
 EventModule = __decorate([
@@ -21,6 +22,7 @@ EventModule = __decorate([
         imports: [
             sequelize_1.SequelizeModule.forFeature([event_entity_1.Event]),
             user_module_1.UserModule,
+            notification_module_1.NotificationModule,
         ],
         controllers: [event_controller_1.EventController],
         providers: [{

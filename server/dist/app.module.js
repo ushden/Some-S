@@ -25,6 +25,7 @@ const service_module_1 = require("./service/service.module");
 const auth_module_1 = require("./auth/auth.module");
 const access_token_module_1 = require("./access-token/access-token.module");
 const telegram_module_1 = require("./telergam/telegram.module");
+const notification_module_1 = require("./notification/notification.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -65,6 +66,7 @@ AppModule = __decorate([
             auth_module_1.AuthModule,
             access_token_module_1.AccessTokenModule,
             telegram_module_1.TelegramModule,
+            notification_module_1.NotificationModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [
