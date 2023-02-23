@@ -32,6 +32,7 @@ interface IGetEvents {
 export interface ITelegramService {
   getContact: (phone: string, chatId: number, name: string) => Promise<string[]>;
   getEventsToday: (chatId: number) => Promise<IGetEvents>;
+  getMustConfirmedEvents: (chatId: number) => Promise<IGetEvents>;
   approveEvent: (eventId: number, chatId: number) => Promise<IApproveEventResponse>;
   deleteEvent: (eventId: number) => Promise<Event>;
   checkEventBeforeDelete: (eventId: number, chatId: number) => Promise<IDeleteEventResponse>;
@@ -71,6 +72,33 @@ export class TelegramService implements ITelegramService {
 
     return roles.map(r => r.name);
   }
+  
+  public async getMustConfirmedEvents(chatId: number): Promise<IGetEvents> {
+    try {
+      const isAvailable = await this.checkAdminPermission(chatId.toString());
+  
+      if (!isAvailable) {
+        return {permissionDenied: true, events: []};
+      }
+  
+      const startDay = DateTime.now().startOf('day').toMillis();
+      const endDay = DateTime.now().endOf('day').toMillis();
+  
+      const events = await this.eventService.find({
+        where: {
+          created: {[Op.between]: [startDay, endDay]},
+          status: Status.waiting,
+        },
+        include: ['customer', 'master'],
+      });
+  
+      return {events};
+    } catch (e) {
+      this.logger.error(`TSGMCE001: Error when try get events. Error: ${e.message}`);
+  
+      throw new BadRequestException(e.message);
+    }
+  }
 
   public async getEventsToday(chatId: number): Promise<IGetEvents> {
     try {
@@ -92,6 +120,8 @@ export class TelegramService implements ITelegramService {
       
       return {events};
     } catch (e) {
+      this.logger.error(`TSGMCE001: Error when try get events. Error: ${e.message}`);
+      
       throw new BadRequestException(e.message);
     }
   }

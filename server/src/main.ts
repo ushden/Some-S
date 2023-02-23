@@ -12,6 +12,8 @@ import {AppModule} from './app.module';
 import {GlobalExceptionFilter} from "@filters";
 import {ServerBaseUrls} from "@enums";
 import {CommonUtilsService} from "@utils/common-utils";
+import {AuthGuard} from "@guards";
+import {JwtService} from "@nestjs/jwt";
 
 const bootstrap = async (): Promise<void> => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -28,6 +30,7 @@ const bootstrap = async (): Promise<void> => {
   const globalPrefix = `backend/${apiPrefix}`;
   const logger = app.get<Logger>(WINSTON_MODULE_PROVIDER);
   const winston = app.get<LoggerService>(WINSTON_MODULE_NEST_PROVIDER);
+  const jwtService = app.get<JwtService>(JwtService);
 
   app.enableCors({
     origin: true,
@@ -46,6 +49,7 @@ const bootstrap = async (): Promise<void> => {
     always: true,
     whitelist: true,
   }));
+  app.useGlobalGuards(new AuthGuard(jwtService, logger));
   app.use(compression());
   app.use(nocache());
   app.use(helmet({

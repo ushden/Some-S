@@ -55,6 +55,33 @@ export class TelegramUpdate {
     }
   }
 
+  @Hears(AdminMenuButtons.mustConfirmed)
+  async getMustConfirmedEvents(@Ctx() ctx: ITelegrafContext) {
+    const chatId: number = ctx.chat.id;
+    
+    try {
+      const data = await this.telegramService.getMustConfirmedEvents(chatId);
+      
+      if (data.permissionDenied) {
+        await ctx.reply('Вибачте, у Вас немає доступу 😐');
+    
+        return;
+      }
+  
+      if (!data.events?.length) {
+        await ctx.reply('На стогодні всі записи підтвердженно 😐');
+    
+        return;
+      }
+  
+      await this.sendEvents(data.events, MessageTypesForAdmin.events, ctx);
+    } catch (e) {
+      await ctx.reply(`Сталася помилка - ${e.message}`);
+  
+      return;
+    }
+  }
+  
   @Hears(AdminMenuButtons.eventsToday)
   async getEventsToday(@Ctx() ctx: ITelegrafContext) {
     const chatId: number = ctx.chat.id;

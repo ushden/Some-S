@@ -20,14 +20,14 @@ export class TelegramUtilsService implements ITelegramUtilsService {
   }
 
   public static generateHtmlEventForAdmin(event: Event, type: MessageTypesForAdmin): string {
-    const services = event.services.map(({name}) => `\n<i>🈯${name}</i>`).join('');
+    const services = event.services.map(({name}) => `\n<i>🈯 ${name}</i>`).join('');
     const time = `<b>${DateTime.fromMillis(+event.start).toFormat('HH:mm')} - ${DateTime.fromMillis(
       +event.end,
     ).toFormat('HH:mm')}</b>`;
     const customer = `<b>${event.customer.name} - ${event.customer.phone}</b>`;
     const master = `<b>Майстер - ${event.master.name}</b>`;
-    const price = `<i>💳Вартість</i> - <b>${event.price}</b> грн.`;
-    const leadTime = `<i>⏳Потрібно часу</i> - ${event.leadTime} хв.`;
+    const price = `<i>💳 Вартість</i> - <b>${event.price}</b> грн.`;
+    const leadTime = `<i>⏳ Потрібно часу</i> - ${event.leadTime} хв.`;
     
     if (type === MessageTypesForAdmin.events) {
       return `
@@ -50,10 +50,10 @@ export class TelegramUtilsService implements ITelegramUtilsService {
     }
 
     const date = DateTime.fromMillis(+event.start).toFormat('dd/MM/yyyy HH:mm');
-    const services = event.services.map(({name}) => `\n<i>🈯${name}</i>`).join('');
+    const services = event.services.map(({name}) => `\n<i>🈯 ${name}</i>`).join('');
 
     if (type === MessageTypesForUser.eventApprove) {
-      return `Ваш запис на <i>${date}</i> підтвержено. Послуги:\n${services} Обновить сообщение, что-то добавить, подумать`;
+      return `Ваш запис на <i>${date}</i> підтвержено.\n Послуги:${services} Обновить сообщение, что-то добавить, подумать`;
     }
     
     if (type === MessageTypesForUser.waitingApprove) {

@@ -11,6 +11,8 @@ const app_module_1 = require("./app.module");
 const _filters_1 = require("./common/filters");
 const _enums_1 = require("./common/enums");
 const common_utils_1 = require("./common/utils/common-utils");
+const _guards_1 = require("./common/guards");
+const jwt_1 = require("@nestjs/jwt");
 const bootstrap = async () => {
     const app = await core_1.NestFactory.create(app_module_1.AppModule, {
         bufferLogs: true,
@@ -24,6 +26,7 @@ const bootstrap = async () => {
     const globalPrefix = `backend/${apiPrefix}`;
     const logger = app.get(nest_winston_1.WINSTON_MODULE_PROVIDER);
     const winston = app.get(nest_winston_1.WINSTON_MODULE_NEST_PROVIDER);
+    const jwtService = app.get(jwt_1.JwtService);
     app.enableCors({
         origin: true,
         credentials: true,
@@ -41,6 +44,7 @@ const bootstrap = async () => {
         always: true,
         whitelist: true,
     }));
+    app.useGlobalGuards(new _guards_1.AuthGuard(jwtService, logger));
     app.use(compression());
     app.use(nocache());
     app.use((0, helmet_1.default)({
